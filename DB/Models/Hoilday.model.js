@@ -14,6 +14,11 @@ const holidaySchema = new Schema({
         enum: ['Waiting for approval', 'Accepted', 'Rejected'],
         required: true,
     },
+    employeeId: {
+        type: Types.ObjectId,
+        ref: 'Employee',
+        required: true
+    },
     type: {
         type: String,
         default: 'Vacation',
