@@ -8,3 +8,4 @@ app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
 
 
 const x=5;
+const y=10
