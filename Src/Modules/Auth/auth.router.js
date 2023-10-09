@@ -1,10 +1,10 @@
 import express from "express";
 const app = express();
-import * as authcontroller from '../Auth/Controller/auth.controller.js';
+import * as authController from './Controller/auth.controller.js';
 
-app.post('/signinEmployee', authcontroller.signinEmpolyee);
-app.post('/singinCompany', authcontroller.singinCompany);
-app.post('/singupCompany',authcontroller.signupCompany);
+app.post('/signinEmployee', authController.signinEmpolyee);
+app.post('/signinCompany', authController.signinCompany);
+app.post('/signupCompany', authController.signupCompany);
 
 
 export default app;

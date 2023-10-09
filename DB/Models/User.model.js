@@ -10,6 +10,11 @@ const employeeSchema = new Schema({
         required: true,
         unique: true
     },
+    phoneNumber: {
+        type: String,
+        required: true,
+        unique: true
+    },
     email: {
         type: String,
         required: true,
@@ -20,7 +25,7 @@ const employeeSchema = new Schema({
         required: true
     },
     macAddress: {
-        type: String,
+        type: String
     },
     companyId: {
         type: Types.ObjectId,
@@ -31,7 +36,7 @@ const employeeSchema = new Schema({
         type: String
     },
     endChecking: {
-        type: String,
+        type: String
     }
 }, {
     timestamps: true

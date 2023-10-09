@@ -1,12 +1,20 @@
 import connectDb from "../../DB/connection.js";
-import authrouter from './Auth/auth.router.js';
+import authRouter from './Auth/auth.router.js';
+import companyRouter from './Company/company.router.js';
 
- const initApp=(app,express)=>{
-app.use(express.json());
-connectDb();
+import cors from 'cors';
 
-app.use('/auth',authrouter)
- }
+const initApp = (app, express) => {
+    connectDb();
 
- 
- export default initApp
+    app.use(cors());
+    app.use(express.json());
+    app.use('/auth', authRouter);
+    app.use('/company', companyRouter)
+
+    app.get('/', (req, res) => res.json({ message: "Welcome to Dashboard" }));
+    app.use('*', (req, res) => res.json({ message: "Page not found" }));
+}
+
+
+export default initApp

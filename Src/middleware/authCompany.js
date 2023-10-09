@@ -2,17 +2,35 @@ import jwt from 'jsonwebtoken';
 import companyModel from '../../DB/Models/Company.model.js';
 
 const authCompany = async (req, res, next) => {
-    const { token } = req.headers;
-    if (!token) {
-        return res.status(401).json({ message: "token is required" });
+
+    const { authorization } = req.headers;
+    if (!authorization?.startsWith(process.env.BEARERKEY)) {
+        return res.status(401).json({ message: "invalid authorization" });
     }
-    const decoded = jwt.verify(token, process.env.LOGINCOMPANY);
-    const company = await companyModel.findById(decoded.id);
-    if (!company) {
-        return res.status(404).json({ message: "not register account " });
+    const token = authorization.split(process.env.BEARERKEY)[1];
+
+    let isVerified = true;
+    let decoded;
+
+    jwt.verify(token, process.env.LOGINCOMPANY, ((error, decodedToken) => {
+        if (error) {
+            isVerified = false;
+            return res.status(401).json({ message: "invalid authorization", error });
+        }
+        decoded = decodedToken;
+    }));
+    
+    if (isVerified) {
+
+        const authCompany = await companyModel.findById(decoded.id).select("userName email");
+
+        if (!authCompany) {
+            return res.status(401).json({ message: "not register account" })
+        }
+        req.user = authCompany;
+        next();
     }
-    req.user = company;
-    next();
+
 }
 
 export default authCompany;

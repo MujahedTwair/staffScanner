@@ -4,23 +4,25 @@ import jwt from 'jsonwebtoken';
 import companyModel from '../../../../DB/Models/Company.model.js';
 
 
-export const signupCompany=async(req,res)=>{
-    const {companyName,email,password,IPAddress}=req.body;
-    var hash = await bcrypt.hash(password,8);
-    const company=await  new companyModel({companyName,email,password:hash,IPAddress})
-    const user=await company.save(); 
-    if(!user){
-        return res.status(404).json({error:error.stack })
-              }
-    
+export const signupCompany = async (req, res) => {
+
+    const { companyName, email, password, IPAddress } = req.body;
+    const company = await companyModel.findOne({ email });
+
+    if (company) {
+        return res.status(409).json({ message: "Email exists" });
+    }
+
+    let hash = await bcrypt.hash(password, parseInt(process.env.SALT_ROUND));
+    const createCompany = await companyModel.create({ companyName, email, password: hash, IPAddress });
+
+    return res.status(201).json({ message: "success", createCompany });
+
 }
-
-
-
 
 export const signinEmpolyee = async (req, res) => {
     const { userName, password } = req.body;
-    const employee = await employeeModel.findOne({ userName })
+    const employee = await employeeModel.findOne({ userName });
     if (!employee) {
         return res.status(404).json({ message: "invaild userName" });
     }
@@ -32,20 +34,17 @@ export const signinEmpolyee = async (req, res) => {
     return res.status(200).json({ message: "success you are employee", token });
 }
 
-
-
-export const singinCompany = async (req, res) => {
-    const { email, password } = req.body
-    const company = companyModel.findOne({ email })
+export const signinCompany = async (req, res) => {
+    const { email, password } = req.body;
+    const company = await companyModel.findOne({ email });
     if (!company) {
         return res.status(404).json({ message: "invaild email" })
     }
-    const match = bcrypt.compareSync(password, company.password)
+    const match = bcrypt.compareSync(password, company.password);
     if (!match) {
         return res.status(404).json({ message: "invaild password" })
     }
-    const token = jwt.sign({ id: company._id }, process.env.LOGINCOMPANY)
+    const token = jwt.sign({ id: company._id }, process.env.LOGINCOMPANY);
 
-    return res.status(200).json({ message: "success you are admin", token })
-
+    return res.status(200).json({ message: "success you are company", token })
 }
