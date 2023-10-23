@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import employeeModel from '../../../../DB/Models/User.model.js';
 
 export const createEmployee = async (req, res) => {
-
+    // return res.json({ user: req.user });
     let employeeData = req.body;
     let employee = await employeeModel.findOne({ email: employeeData.email });
 
