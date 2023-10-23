@@ -20,7 +20,7 @@ export const signinEmployeeSchema = joi.object({
         'string.empty': "userName is required"
     }),
 
-    password: joi.string().required().min(8).max(20).messages({
+    password: joi.string().required().min(6).max(20).messages({
         'string.empty': "password is required"
     })
 });

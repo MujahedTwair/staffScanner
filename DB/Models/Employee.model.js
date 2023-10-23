@@ -42,6 +42,6 @@ const employeeSchema = new Schema({
     timestamps: true
 });
 
-const employeeModel = mongoose.model.Employee ||model('Employee', employeeSchema); //to prevent create new model when exists already
+const employeeModel = mongoose.model.Employee || model('Employee', employeeSchema); //to prevent create new model when exists already
 
 export default employeeModel;

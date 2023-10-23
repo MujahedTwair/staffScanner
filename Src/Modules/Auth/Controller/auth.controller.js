@@ -1,4 +1,4 @@
-import employeeModel from '../../../../DB/Models/User.model.js';
+import employeeModel from '../../../../DB/Models/Employee.model.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import companyModel from '../../../../DB/Models/Company.model.js';

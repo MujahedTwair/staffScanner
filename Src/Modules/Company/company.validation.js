@@ -6,7 +6,7 @@ export const createEmployeeSchema = {
         userName: joi.string().alphanum().required(),
         phoneNumber: joi.number().required(),
         email: joi.string().email().required(),
-        password: joi.string().min(8).max(20).required(),
+        password: joi.string().min(6).max(20).required(),
         cPassword: joi.valid(joi.ref('password')).required(),
         // creationDate: joi.string().required(),
         macAddress: joi.string().alphanum(),
