@@ -19,13 +19,13 @@ const authCompany = async (req, res, next) => {
         }
         decoded = decodedToken;
     }));
-    
+
     if (isVerified) {
 
         const authCompany = await companyModel.findById(decoded.id).select("userName email");
 
         if (!authCompany) {
-            return res.status(401).json({ message: "not register account" })
+            return res.status(401).json({ message: "not register account" });
         }
         req.user = authCompany;
         next();

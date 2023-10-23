@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import bcrypt from 'bcryptjs'
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 
