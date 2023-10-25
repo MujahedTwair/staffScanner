@@ -13,7 +13,7 @@ const initApp = (app, express) => {
     app.use('/company', companyRouter)
 
     app.get('/', (req, res) => res.json({ message: "Welcome to Dashboard" }));
-    app.use('*', (req, res) => res.json({ message: "Page not found" }));
+    app.use('*', (req, res) => res.json({ message: "Page not found, تأكد من نوع الميثود طنيبك" }));
 }
 
 
