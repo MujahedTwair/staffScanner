@@ -11,8 +11,8 @@ export const createEmployeeSchema = {
         // creationDate: joi.string().required(),
         macAddress: joi.string().alphanum(),
         // companyId: joi.string().required(),
-        startChecking: joi.string().alphanum().required(),
-        endChecking: joi.string().alphanum().required()
+        startChecking: joi.string().required(),
+        endChecking: joi.string().required()
 
     }),
 
