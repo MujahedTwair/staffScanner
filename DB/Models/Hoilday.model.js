@@ -1,3 +1,4 @@
+import { string } from "joi";
 import mongoose, { Schema, Types, model } from "mongoose";
 const holidaySchema = new Schema({
     startDate: {
@@ -27,14 +28,16 @@ const holidaySchema = new Schema({
     },
     paid: {
         type: Boolean,
-        enum: [True, false],
-        required,
+        enum: [true, false],
+        required: true,
     },
     reason: {
         type: String,
-        required,
+        required: true,
+    },
+    companyNote: {
+        type: String
     }
-
 }, {
     timestamps: true,
 });

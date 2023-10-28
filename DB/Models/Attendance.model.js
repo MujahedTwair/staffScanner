@@ -8,7 +8,6 @@ const attendanceSchema = new Schema({
     },
     isCheckOut: {
         type: Boolean,
-        required: true
     },
     enterTime: {
         type: String,
@@ -16,11 +15,9 @@ const attendanceSchema = new Schema({
     },
     leaveTime: {
         type: String,
-        required: true
     },
     date: {
         type: String,
-        required: true
     },
     employeeId: {
         type: Types.ObjectId,

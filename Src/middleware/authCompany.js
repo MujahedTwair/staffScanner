@@ -22,7 +22,7 @@ const authCompany = async (req, res, next) => {
 
     if (isVerified) {
 
-        const authCompany = await companyModel.findById(decoded.id).select("userName email");
+        const authCompany = await companyModel.findById(decoded.id).select("companyName email");
 
         if (!authCompany) {
             return res.status(401).json({ message: "not register account" });

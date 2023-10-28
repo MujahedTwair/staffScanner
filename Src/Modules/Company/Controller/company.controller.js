@@ -4,7 +4,7 @@ import employeeModel from '../../../../DB/Models/Employee.model.js';
 export const createEmployee = async (req, res) => {
     // return res.json({ user: req.user });
     let employeeData = req.body;
-    const { email, userName, phoneNumber } = employeeData;
+    const { email, userName, phoneNumber, startChecking, endChecking } = employeeData;
     const employee = await employeeModel.findOne({
         $or: [
             { email },
@@ -27,7 +27,19 @@ export const createEmployee = async (req, res) => {
     employeeData.password = hashedPasswored;
     employeeData.companyId = req.user._id;
 
+    // let hours = (startChecking).split(':')[0];
+    // let minutes = (startChecking).split(':')[1];
+
+    // employeeData.startChecking = {hours, minutes};
+
+    // hours = (endChecking).split(':')[0];
+    // minutes = (endChecking).split(':')[1];
+    
+    // employeeData.endChecking = {hours, minutes};
+    
     const createUser = await employeeModel.create(employeeData);
     return res.status(201).json({ message: "Employee added successfuly", createUser });
 
 }
+
+//checkin
