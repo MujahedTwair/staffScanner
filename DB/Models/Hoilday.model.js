@@ -1,4 +1,3 @@
-import { string } from "joi";
 import mongoose, { Schema, Types, model } from "mongoose";
 const holidaySchema = new Schema({
     startDate: {
@@ -37,6 +36,10 @@ const holidaySchema = new Schema({
     },
     companyNote: {
         type: String
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false,
     }
 }, {
     timestamps: true,
