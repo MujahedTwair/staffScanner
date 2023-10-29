@@ -94,11 +94,16 @@ export const approveHoliday = async (req, res) => {
 export const deleteHoliday = async (req, res) => {
     const { hashed_id } = req.params;
 
-    const {id} = jwt.verify(hashed_id, process.env.HOLIDAYID);
+    const { id } = jwt.verify(hashed_id, process.env.HOLIDAYID);
 
     const holiday = await holidayModel.findOneAndUpdate({ _id: id, status: "Waiting for approval" }, { isDeleted: true }, { new: true });
     if (!holiday) {
         return res.status(404).json({ message: "No holiday found" });
     }
     return res.status(200).json({ message: "Holiday is deleted ", holiday });
+}
+
+export const getHolidayTypes = async (req, res) => {
+    const types = ['Sick', 'Vacation', 'Travelling'];
+    return res.status(201).json({ message: "success", types });
 }
