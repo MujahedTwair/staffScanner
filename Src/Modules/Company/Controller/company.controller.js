@@ -34,12 +34,19 @@ export const createEmployee = async (req, res) => {
 
     // hours = (endChecking).split(':')[0];
     // minutes = (endChecking).split(':')[1];
-    
+
     // employeeData.endChecking = {hours, minutes};
-    
+
     const createUser = await employeeModel.create(employeeData);
     return res.status(201).json({ message: "Employee added successfuly", createUser });
 
 }
 
+export const editIPAddress = async (req, res) => {
+    const company = req.user;
+    const { newIPAddress } = req.body;
+    company.IPAddress = newIPAddress;
+    await company.save();
+    return res.status(201).json({ message: "IP Address edited successfully", company });
+}
 //checkin

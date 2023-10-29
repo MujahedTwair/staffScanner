@@ -15,5 +15,11 @@ export const createEmployeeSchema = {
         endChecking: joi.string().required()
 
     }),
+};
+
+export const editIPAddressSchema = {
+    body: joi.object({
+        newIPAddress: joi.string().required(),
+    }),
 
 };
