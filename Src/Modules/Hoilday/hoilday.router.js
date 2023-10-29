@@ -1,6 +1,6 @@
 import express from "express";
 const app = express();
-import * as holidayController from './Controller/holiday.controller.js';
+import * as holidayController from './Controller/hoilday.controller.js';
 import validation from "../../middleware/validation.js";
 import * as validationSchema from './holiday.validation.js'
 import asyncHandler from "../../middleware/errorHandling.js";
