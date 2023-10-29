@@ -9,6 +9,6 @@ import authEmployee from "../../middleware/authEmployee.js";
 app.post('/checkIn', authEmployee, validation(validationSchema.checkInSchema), asyncHandler(employeeController.checkIn));
 app.patch('/checkOut', authEmployee, validation(validationSchema.checkOutSchema), asyncHandler(employeeController.checkOut));
 app.get('/newCheck', authEmployee, asyncHandler(employeeController.newCheckin));
-
+app.get('/getAllowedCheck', authEmployee, asyncHandler(employeeController.getAllowedCheck));
 
 export default app;

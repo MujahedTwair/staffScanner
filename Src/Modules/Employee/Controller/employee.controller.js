@@ -19,50 +19,25 @@ export const checkIn = async (req, res) => {
     }
 
     const { _id, startChecking, endChecking } = employee;
-    console.log(`dslds ${startChecking},${endChecking}`);
-    const currentTime = new Date().toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-    });
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, });
     if (!isWithinTimeRange(startChecking, endChecking, currentTime)) {
         return res.status(409).json({ message: "you are out of range checking, rejected", startChecking, endChecking, currentTime });
     }
 
-    /*let startHours = +employee.startChecking.hours;
-    let startMinutes = +employee.startChecking.minutes + (startHours * 60);
-
-    let startChecking = DateTime.now().setZone('Asia/Jerusalem').set({ hour: 0, minute: startMinutes, second: 0, millisecond: 0 });;
-    if(startHours > 12){
-        startChecking = startChecking.minus({ days: 1 });
-    }
-    let endHours = employee.endChecking.hours;
-    let endMinutes = +employee.endChecking.minutes + (endHours * 60);
-    let realEndMinutes = endMinutes - startMinutes ;
-    if(realEndMinutes < 0){
-        realEndMinutes += (24*60);
-    }
-    const endChecking = startChecking.plus({minutes: realEndMinutes});*/
-    // if( DateTime.now() > startChecking && DateTime.now() < endChecking){
-    //     return res.json('allowed')
-    // }
-    // return res.json('not allowed')
-    // const updatedDateTime = startChecking.set({ hour: hours, minute: minutes, second: 0, millisecond: 0 });
-
-    // startChecking.setHours(hours)
-
     const lastCheckIn = await attendanceModel.findOne({ employeeId: _id }).sort({ createdAt: -1 });
-    if (lastCheckIn?.isCheckIn && !lastCheckIn?.isCheckOut) {
-        return res.status(409).json({ message: "you are already checked in, if you want to check out go to checkOut button" });
-    } else if (lastCheckIn?.isCheckIn && lastCheckIn?.isCheckOut || lastCheckIn == null) {
-        const newCheckin = await attendanceModel.create({
-            isCheckIn: true, isCheckOut: false, enterTime: Date.now(),
-            employeeId: _id
-        });
-        return res.status(201).json({ message: "success check in", newCheckin });
-
+    if (!lastCheckIn) {
+        return await addCheckIn(_id, res);
+    } else if (lastCheckIn.isCheckIn && !lastCheckIn.isCheckOut) {
+        if (isAllowedCheckOut(startChecking, endChecking, lastCheckIn.createdAt, new Date())) {
+            return res.status(409).json({ message: "you are already checked in, if you want to check out go to checkOut button" });
+        } else {
+            return await addCheckIn(_id, res);
+        }
+    } else if (lastCheckIn.isCheckIn && lastCheckIn.isCheckOut) {
+        return await addCheckIn(_id, res);
     }
-    return res.status(201).json({ message: "nnn success check in" });
+    return res.status(201).json({ message: "Nothing allowed to you, maybe something wrong, rejected" });
+
 }
 
 export const checkOut = async (req, res) => {
@@ -112,6 +87,28 @@ export const newCheckin = async (req, res) => {
     return res.json({ message: "new checkIn", check });
 }
 
+export const getAllowedCheck = async (req, res) => {
+    const employee = req.user;
+    const { _id, startChecking, endChecking } = employee;
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, });
+    if (!isWithinTimeRange(startChecking, endChecking, currentTime)) {
+        return res.status(409).json({ message: "you are out of range checking, rejected", startChecking, endChecking, currentTime });
+    }
+    const lastCheckIn = await attendanceModel.findOne({ employeeId: _id }).sort({ createdAt: -1 });
+    if (!lastCheckIn) {
+        return res.status(201).json({ message: "checkIn" });
+    } else if (lastCheckIn.isCheckIn && !lastCheckIn.isCheckOut) {
+        if (isAllowedCheckOut(startChecking, endChecking, lastCheckIn.createdAt, new Date())) {
+            return res.status(201).json({ message: "checkOut" });
+        } else {
+            return res.status(201).json({ message: "checkIn" });
+        }
+    } else if (lastCheckIn.isCheckIn && lastCheckIn.isCheckOut) {
+        return res.status(201).json({ message: "checkIn" });
+    }
+    return res.status(201).json({ message: "Nothing allowed to you, maybe something wrong" });
+}
+
 function isWithinTimeRange(start, end, current) {
     if (start <= end) {
         return current >= start && current <= end;
@@ -121,12 +118,12 @@ function isWithinTimeRange(start, end, current) {
 }
 
 function isAllowedCheckOut(startCheckingTime, endCheckingTime, checkInTime, checkOutTime) {
-    const [startHours,startMinutes] = startCheckingTime.split(':');
+    const [startHours, startMinutes] = startCheckingTime.split(':');
     const shiftStart = new Date(checkInTime);
-    if(shiftStart.getHours() < startHours || shiftStart.getHours() == startHours && shiftStart.getMinutes() < startMinutes){
+    if (shiftStart.getHours() < startHours || shiftStart.getHours() == startHours && shiftStart.getMinutes() < startMinutes) {
         shiftStart.setDate(shiftStart.getDate() - 1);
     }
-    shiftStart.setHours(+startHours, +startMinutes, 0, 0);  
+    shiftStart.setHours(+startHours, +startMinutes, 0, 0);
 
     const shiftEnd = new Date(checkInTime);
     shiftEnd.setHours(Number(endCheckingTime.split(':')[0]), Number(endCheckingTime.split(':')[1]), 0, 0);
@@ -136,6 +133,10 @@ function isAllowedCheckOut(startCheckingTime, endCheckingTime, checkInTime, chec
     }
     // console.log(startCheckingTime, endCheckingTime, checkInTime, checkOutTime, shiftStart, shiftEnd);
     return checkOutTime >= shiftStart && checkOutTime <= shiftEnd;
+}
+const addCheckIn = async (id, res) => {
+    const newCheckin = await attendanceModel.create({ isCheckIn: true, isCheckOut: false, enterTime: Date.now(), employeeId: id });
+    return res.status(201).json({ message: "success check in", newCheckin });
 }
 
 const checkMacAddress = async (employee, macAddress, res) => {
