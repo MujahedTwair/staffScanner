@@ -44,9 +44,22 @@ export const createEmployee = async (req, res) => {
 
 export const editIPAddress = async (req, res) => {
     const company = req.user;
-    const { newIPAddress } = req.body;
-    company.IPAddress = newIPAddress;
+    const { IPAddress, subnetMask } = req.body;
+    company.IPAddress = calculateNetworkAddress(IPAddress, subnetMask);
     await company.save();
-    return res.status(201).json({ message: "IP Address edited successfully", company });
+    return res.status(201).json({ message: "IP Address edited successfully", newIPAddress: company.IPAddress });
+}
+
+function calculateNetworkAddress(ipAddress, subnetMask) {
+    const ipOctets = ipAddress.split('.').map(Number);
+    const subnetOctets = subnetMask.split('.').map(Number);
+    const networkOctets = [];
+
+    for (let i = 0; i < 4; i++) {
+        networkOctets.push(ipOctets[i] & subnetOctets[i]);
+    }
+    const networkAddress = networkOctets.join('.');
+
+    return networkAddress;
 }
 //checkin
