@@ -13,21 +13,18 @@ export const requestHoliday = async (req, res) => {
 }
 
 export const reviewHolidays = async (req, res) => {
-    const holiday = await holidayModel.find({ employeeId: req.user._id, isDeleted: false })
-        .select('_id startDate endDate type paid reason companyNote status')
+    const holidays = await holidayModel.find({ employeeId: req.user._id, isDeleted: false })
+        .select('_id startDate endDate type paid reason companyNote status isDeleted')
         .populate({
             path: 'employeeId',
             select: ' -_id userName'
         })
 
-    if (!holiday) {
+    if (!holidays) {
         return res.status(404).json({ message: "No holiday requests found" });
     }
-    const allHolidays = holiday.map((ele) => {
-        const hashed_id = jwt.sign({ id: ele._id }, process.env.HOLIDAYID);
-        return { ...ele.toObject(), _id: hashed_id };
-    });
-    return res.status(200).json({ message: "success", allHolidays });
+    
+    return res.status(200).json({ message: "success", holidays });
 }
 
 
@@ -54,7 +51,7 @@ export const viewHoliday = async (req, res) => {
 
 
 export const viewArchiveHoliday = async (req, res) => {
-    const holiday = await holidayModel.find({ status: { $in: ['Accepted', 'Rejected'] }, isDeleted: false })
+    const holiday = await holidayModel.find({ status: { $in: ['Accepted', 'Rejected'] } })
         .select('-_id startDate endDate type paid reason status')
         .populate({
             path: 'employeeId',
@@ -77,7 +74,7 @@ export const approveHoliday = async (req, res) => {
     const { status, companyNote } = req.body;
     const { hashed_id } = req.params;
     const { id } = jwt.verify(hashed_id, process.env.HOLIDAYID);
-    const holiday = await holidayModel.findByIdAndUpdate({ _id: id, isDeleted: false }, { status, companyNote }, { new: true })
+    const holiday = await holidayModel.findByIdAndUpdate({ _id: id }, { status, companyNote }, { new: true })
         .select('-_id startDate endDate type paid reason status companyNote')
         .populate({
             path: 'employeeId',
@@ -92,15 +89,13 @@ export const approveHoliday = async (req, res) => {
 
 
 export const deleteHoliday = async (req, res) => {
-    const { hashed_id } = req.params;
+    const { id } = req.params;
 
-    const { id } = jwt.verify(hashed_id, process.env.HOLIDAYID);
-
-    const holiday = await holidayModel.findOneAndUpdate({ _id: id, status: "Waiting for approval" }, { isDeleted: true }, { new: true });
+    const holiday = await holidayModel.findOneAndUpdate({ _id: id }, { isDeleted: true }, { new: true });
     if (!holiday) {
         return res.status(404).json({ message: "No holiday found" });
     }
-    return res.status(200).json({ message: "Holiday is deleted ", holiday });
+    return res.status(200).json({ message: "Holiday is deleted", id });
 }
 
 export const getHolidayTypes = async (req, res) => {

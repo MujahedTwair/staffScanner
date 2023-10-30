@@ -9,7 +9,7 @@ import authEmployee from "../../middleware/authEmployee.js";
 
 app.post('/requestHoliday', authEmployee, validation(validationSchema.requestHolidaySchema), asyncHandler(holidayController.requestHoliday));
 app.get('/reviewHolidays', authEmployee, asyncHandler(holidayController.reviewHolidays));
-app.delete('/deleteHoliday/:hashed_id', authEmployee, validation(validationSchema.deleteHolidaySchema), asyncHandler(holidayController.deleteHoliday));
+app.delete('/deleteHoliday/:id', authEmployee, validation(validationSchema.deleteHolidaySchema), asyncHandler(holidayController.deleteHoliday));
 app.get('/holidayTypes', authEmployee, asyncHandler(holidayController.getHolidayTypes));
 
 app.get('/viewHoliday', authCompany, asyncHandler(holidayController.viewHoliday));

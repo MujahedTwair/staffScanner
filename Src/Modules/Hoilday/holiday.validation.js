@@ -4,7 +4,7 @@ export const requestHolidaySchema = {
     body: joi.object({
         startDate: joi.string().required(),
         endDate: joi.string().required(),
-        type: joi.string().valid('Sick', 'Vacation').required(),
+        type: joi.string().valid('Sick', 'Vacation', 'Travelling').required(),
         paid: joi.boolean().required(),
         reason: joi.string().required()
     }),
@@ -17,12 +17,12 @@ export const approveHolidaySchema = {
         companyNote: joi.string().optional()
     }),
     params: joi.object({
-        hashed_id: joi.string().required(),
+        id: joi.string().required(),
     }),
 };
 
 export const deleteHolidaySchema = {
     params: joi.object({
-        hashed_id: joi.string().required(),
+        id: joi.string().required(),
     }),
-}
+};
