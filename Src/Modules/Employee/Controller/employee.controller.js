@@ -115,7 +115,7 @@ export const welcome = async (req, res) => {
     const start = convertToAMPM(startChecking);
     const end = convertToAMPM(endChecking);
     const currentDay = DateTime.now().setZone('Asia/Jerusalem').toFormat('cccc');
-    const currentDate = DateTime.now().setZone('Asia/Jerusalem').toFormat('yyyy-MM-dd'); 
+    const currentDate = DateTime.now().setZone('Asia/Jerusalem').toFormat('dd-MM-yyyy'); 
 
     return res.status(200).json({ fullName, start, end, currentDay, currentDate });
 }
