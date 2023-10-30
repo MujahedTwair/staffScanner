@@ -1,11 +1,11 @@
 import { DateTime } from 'luxon';
 import attendanceModel from "../../../../DB/Models/Attendance.model.js";
 import companyModel from "../../../../DB/Models/Company.model.js";
-import employeeModel from "../../../../DB/Models/Employee.model.js";
+import { calculateNetworkAddress } from '../../../Services/service.controller.js';
 //make IPAdress endpoint to change for company
 export const checkIn = async (req, res) => {
     const employee = req.user;
-    const { macAddress, IPAddress } = req.body;
+    const { macAddress, IPAddress, subnetMask } = req.body;
     if (!employee.macAddress) {
         employee.macAddress = macAddress;
         await employee.save();
@@ -14,7 +14,8 @@ export const checkIn = async (req, res) => {
             return;
         }
     }
-    if (await checkIPAddress(employee, IPAddress, res)) {
+    const networkAddress = calculateNetworkAddress(IPAddress, subnetMask);
+    if (await checkIPAddress(employee, networkAddress, res)) {
         return;
     }
 
@@ -42,8 +43,9 @@ export const checkIn = async (req, res) => {
 
 export const checkOut = async (req, res) => {
     const employee = req.user;
-    const { macAddress, IPAddress } = req.body;
-    if (await checkMacAddress(employee, macAddress, res) || (await checkIPAddress(employee, IPAddress, res))) {
+    const { macAddress, IPAddress, subnetMask } = req.body;
+    const networkAddress = calculateNetworkAddress(IPAddress, subnetMask);
+    if (await checkMacAddress(employee, macAddress, res) || (await checkIPAddress(employee, networkAddress, res))) {
         return;
     }
 

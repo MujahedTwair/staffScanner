@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 import employeeModel from '../../../../DB/Models/Employee.model.js';
-
+import { calculateNetworkAddress } from '../../../Services/service.controller.js';
 export const createEmployee = async (req, res) => {
     // return res.json({ user: req.user });
     let employeeData = req.body;
@@ -50,16 +50,4 @@ export const editIPAddress = async (req, res) => {
     return res.status(201).json({ message: "IP Address edited successfully", newIPAddress: company.IPAddress });
 }
 
-function calculateNetworkAddress(ipAddress, subnetMask) {
-    const ipOctets = ipAddress.split('.').map(Number);
-    const subnetOctets = subnetMask.split('.').map(Number);
-    const networkOctets = [];
-
-    for (let i = 0; i < 4; i++) {
-        networkOctets.push(ipOctets[i] & subnetOctets[i]);
-    }
-    const networkAddress = networkOctets.join('.');
-
-    return networkAddress;
-}
 //checkin
