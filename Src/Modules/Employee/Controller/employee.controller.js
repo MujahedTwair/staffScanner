@@ -12,7 +12,7 @@ export const checkIn = async (req, res) => {
     } else {
         if (await checkMacAddress(employee, macAddress, res)) {
             return;
-        };
+        }
     }
     if (await checkIPAddress(employee, IPAddress, res)) {
         return;

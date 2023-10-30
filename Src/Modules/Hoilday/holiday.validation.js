@@ -23,6 +23,6 @@ export const approveHolidaySchema = {
 
 export const deleteHolidaySchema = {
     params: joi.object({
-        id: joi.string().required(),
+        hashed_id: joi.string().required(),
     }),
 };
