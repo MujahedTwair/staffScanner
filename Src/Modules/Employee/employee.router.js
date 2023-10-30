@@ -10,5 +10,6 @@ app.post('/checkIn', authEmployee, validation(validationSchema.checkInSchema), a
 app.patch('/checkOut', authEmployee, validation(validationSchema.checkOutSchema), asyncHandler(employeeController.checkOut));
 app.get('/newCheck', authEmployee, asyncHandler(employeeController.newCheckin));
 app.get('/getAllowedCheck', authEmployee, asyncHandler(employeeController.getAllowedCheck));
+app.get('/welcome', authEmployee, asyncHandler(employeeController.welcome));
 
 export default app;

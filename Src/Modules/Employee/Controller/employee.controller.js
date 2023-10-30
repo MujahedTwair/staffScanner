@@ -109,6 +109,17 @@ export const getAllowedCheck = async (req, res) => {
     return res.status(201).json({ message: "Nothing allowed to you, maybe something wrong" });
 }
 
+export const welcome = async (req, res) => {
+    const employee = req.user;
+    const { fullName, startChecking, endChecking } = employee;
+    const start = convertToAMPM(startChecking);
+    const end = convertToAMPM(endChecking);
+    const currentDay = DateTime.now().setZone('Asia/Jerusalem').toFormat('cccc');
+    const currentDate = DateTime.now().setZone('Asia/Jerusalem').toFormat('yyyy-MM-dd'); 
+
+    return res.status(200).json({ fullName, start, end, currentDay, currentDate });
+}
+
 function isWithinTimeRange(start, end, current) {
     if (start <= end) {
         return current >= start && current <= end;
@@ -133,6 +144,14 @@ function isAllowedCheckOut(startCheckingTime, endCheckingTime, checkInTime, chec
     }
     // console.log(startCheckingTime, endCheckingTime, checkInTime, checkOutTime, shiftStart, shiftEnd);
     return checkOutTime >= shiftStart && checkOutTime <= shiftEnd;
+}
+function convertToAMPM(timeString) {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const period = hours < 12 ? 'Am' : 'Pm';
+    const formattedHours = hours % 12 || 12;
+    const formattedTime = `${formattedHours}:${minutes} ${period}`;
+
+    return formattedTime;
 }
 const addCheckIn = async (id, res) => {
     const newCheckin = await attendanceModel.create({ isCheckIn: true, isCheckOut: false, enterTime: Date.now(), employeeId: id });
