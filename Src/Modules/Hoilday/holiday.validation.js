@@ -17,12 +17,12 @@ export const approveHolidaySchema = {
         companyNote: joi.string().optional()
     }),
     params: joi.object({
-        id: joi.string().required(),
+        hashed_id: joi.string().required(),
     }),
 };
 
 export const deleteHolidaySchema = {
     params: joi.object({
-        hashed_id: joi.string().required(),
+        id: joi.string().required(),
     }),
 };
