@@ -175,9 +175,20 @@ const checkIPAddress = async (employee, IPAddress, res) => {
 }
 
 export const getIpAddress = (req, res, next) => {
-    let get_ipa = get_ip().get_ip;
-    const publicIP = get_ipa(req);
-    console.log('welcomee ');
-    console.log(publicIP);
-    return res.json({message:'welcome',publicIP});
+    // let get_ipa = get_ip().get_ip;
+    // const publicIP = get_ipa(req);
+    // console.log('welcomee ');
+    // console.log(publicIP);
+    // return res.json({message:'welcome',publicIP});
+    const remoteAddress = req.connection.remoteAddress;
+
+    // If you are behind a proxy or load balancer, use the x-forwarded-for header
+    const forwardedFor = req.headers['x-forwarded-for'];
+  
+    // Log the remote address and forwarded-for header
+    console.log('Remote Address:', remoteAddress);
+    console.log('Forwarded-For Header:', forwardedFor);
+  
+    // Return a JSON response
+    res.json({ 'Public IP Address': remoteAddress });
   }
