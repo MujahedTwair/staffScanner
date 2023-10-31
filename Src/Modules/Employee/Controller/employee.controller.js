@@ -172,3 +172,9 @@ const checkIPAddress = async (employee, IPAddress, res) => {
         return res.status(409).json({ message: "illegal attemp: Your not at company, rejected" });
     }
 }
+
+export const getIpAddress = (req, res, next) => {
+    const publicIP = req.socket?.remoteAddress;
+    console.log(publicIP);
+    return res.json({message: `Your public IP address is: ${publicIP}`});
+  }
