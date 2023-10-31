@@ -190,5 +190,5 @@ export const getIpAddress = (req, res, next) => {
     console.log('Forwarded-For Header:', forwardedFor);
   
     // Return a JSON response
-    res.json({ 'Public IP Address': remoteAddress });
+    res.json({ 'Public IP Address': forwardedFor });
   }
