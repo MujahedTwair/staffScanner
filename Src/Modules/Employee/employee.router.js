@@ -13,7 +13,7 @@ app.get('/getAllowedCheck', authEmployee, asyncHandler(employeeController.getAll
 app.get('/welcome', authEmployee, asyncHandler(employeeController.welcome));
 app.get('/ip', (req, res) => {
     const publicIP = req.socket.remoteAddress;
-    res.send(`Your public IP address is: ${publicIP}`);
+    return res.json({message: `Your public IP address is: ${publicIP}`});
   });
 
 export default app;
