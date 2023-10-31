@@ -2,6 +2,7 @@ import { DateTime } from 'luxon';
 import attendanceModel from "../../../../DB/Models/Attendance.model.js";
 import companyModel from "../../../../DB/Models/Company.model.js";
 import { calculateNetworkAddress } from '../../../Services/service.controller.js';
+import get_ip from 'ipware';
 //make IPAdress endpoint to change for company
 export const checkIn = async (req, res) => {
     const employee = req.user;
@@ -174,8 +175,9 @@ const checkIPAddress = async (employee, IPAddress, res) => {
 }
 
 export const getIpAddress = (req, res, next) => {
-    const publicIP = req;
+    let get_ipa = get_ip().get_ip;
+    const publicIP = get_ipa(req);
     console.log('welcomee ');
     console.log(publicIP);
-    return res.json({message:'welcome'});
+    return res.json({message:'welcome',publicIP});
   }
