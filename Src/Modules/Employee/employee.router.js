@@ -11,9 +11,9 @@ app.patch('/checkOut', authEmployee, validation(validationSchema.checkWithoutRej
 app.get('/newCheck', authEmployee, asyncHandler(employeeController.newCheckin));
 app.get('/getAllowedCheck', authEmployee, asyncHandler(employeeController.getAllowedCheck));
 app.get('/welcome', authEmployee, asyncHandler(employeeController.welcome));
-app.get('/ip', (req, res) => {
+app.get('/ip', asyncHandler((req, res) => {
     const publicIP = req.socket.remoteAddress;
     return res.json({message: `Your public IP address is: ${publicIP}`});
-  });
+  }));
 
 export default app;
