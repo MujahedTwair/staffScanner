@@ -174,7 +174,7 @@ const checkIPAddress = async (employee, IPAddress, res) => {
 }
 
 export const getIpAddress = (req, res, next) => {
-    const publicIP = req.socket?.remoteAddress;
+    const publicIP = req.ip;
     console.log(publicIP);
     return res.json({message: `Your public IP address is: ${publicIP}`});
   }
