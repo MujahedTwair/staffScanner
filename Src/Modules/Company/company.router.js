@@ -8,5 +8,6 @@ import asyncHandler from "../../middleware/errorHandling.js";
 
 app.post('/createEmployee', authCompany, validation(validationSchema.createEmployeeSchema), asyncHandler(companyController.createEmployee));
 app.patch('/editIP', authCompany, validation(validationSchema.editIPAddressSchema), asyncHandler(companyController.editIPAddress));
+app.get('/activeEmployees', authCompany, asyncHandler(companyController.getActiveEmployee));
 
 export default app;

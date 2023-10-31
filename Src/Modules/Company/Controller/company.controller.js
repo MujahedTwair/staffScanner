@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs'
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 import { calculateNetworkAddress } from '../../../Services/service.controller.js';
+import attendanceModel from '../../../../DB/Models/Attendance.model.js';
+
 export const createEmployee = async (req, res) => {
-    // return res.json({ user: req.user });
     let employeeData = req.body;
     const { email, userName, phoneNumber, startChecking, endChecking } = employeeData;
     const employee = await employeeModel.findOne({
@@ -27,16 +28,6 @@ export const createEmployee = async (req, res) => {
     employeeData.password = hashedPasswored;
     employeeData.companyId = req.user._id;
 
-    // let hours = (startChecking).split(':')[0];
-    // let minutes = (startChecking).split(':')[1];
-
-    // employeeData.startChecking = {hours, minutes};
-
-    // hours = (endChecking).split(':')[0];
-    // minutes = (endChecking).split(':')[1];
-
-    // employeeData.endChecking = {hours, minutes};
-
     const createUser = await employeeModel.create(employeeData);
     return res.status(201).json({ message: "Employee added successfuly", createUser });
 
@@ -50,4 +41,21 @@ export const editIPAddress = async (req, res) => {
     return res.status(201).json({ message: "IP Address edited successfully", newIPAddress: company.IPAddress });
 }
 
+export const getActiveEmployee = async (req, res) => {
+    const company = req.user;
+    const active = await attendanceModel.find({ isCheckIn: 'true', isCheckOut: 'false' })
+    .select('enterTime employeeId')
+    .populate({
+        path: 'employeeId',
+        select: ' -_id userName',
+        match: {companyId: company._id}
+    });
+
+    const activeEmp = await employeeModel.find({companyId: company._id})
+    .select('fullName')
+    .populate({
+        
+    })
+    return res.json({active})
+}
 //checkin
