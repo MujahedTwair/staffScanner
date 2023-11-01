@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs'
 // import { isAllowedCheckOut } from '../../../Services/service.controller.js';
-import { DateTime } from 'luxon';
+//import { DateTime } from 'luxon';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 import attendanceModel from '../../../../DB/Models/Attendance.model.js';
-import { getCheckOutDateTime } from '../../../Services/service.controller.js';
+//import { getCheckOutDateTime } from '../../../Services/service.controller.js';
 
 export const createEmployee = async (req, res) => {
     let employeeData = req.body;
