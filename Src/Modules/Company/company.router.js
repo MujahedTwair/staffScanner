@@ -10,4 +10,6 @@ app.post('/createEmployee', authCompany, validation(validationSchema.createEmplo
 app.patch('/editIP', authCompany, validation(validationSchema.editIPAddressSchema), asyncHandler(companyController.editIPAddress));
 app.get('/activeEmployees', authCompany, asyncHandler(companyController.getActiveEmployee));
 
+app.get('/ip', authCompany, asyncHandler(companyController.getIpAddress));
+
 export default app;
