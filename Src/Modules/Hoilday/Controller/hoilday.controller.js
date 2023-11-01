@@ -34,7 +34,7 @@ export const viewHoliday = async (req, res) => {
         .select('_id startDate endDate type paid reason status')
         .populate({
             path: 'employeeId',
-            select: '-_id userName'
+            select: '-_id userName fullName'
         });
 
     if (!holidays) {
@@ -55,7 +55,7 @@ export const viewArchiveHoliday = async (req, res) => {
         .select('-_id startDate endDate type paid reason status')
         .populate({
             path: 'employeeId',
-            select: '-_id userName'
+            select: '-_id userName fullName'
         })
 
     if (!holiday) {
@@ -78,7 +78,7 @@ export const approveHoliday = async (req, res) => {
         .select('-_id startDate endDate type paid reason status companyNote')
         .populate({
             path: 'employeeId',
-            select: '-_id userName'
+            select: '-_id userName fullName'
         }
         )
     if (!holiday) {
