@@ -12,6 +12,6 @@ app.get('/newCheck', authEmployee, asyncHandler(employeeController.newCheckin));
 app.get('/getAllowedCheck', authEmployee, asyncHandler(employeeController.getAllowedCheck));
 app.get('/welcome', authEmployee, asyncHandler(employeeController.welcome));
 
-app.get('/ip', employeeController.getIpAddress);
+app.get('/ip', asyncHandler(employeeController.getIpAddress));
 
 export default app;

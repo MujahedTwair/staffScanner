@@ -27,7 +27,6 @@ export const reviewHolidays = async (req, res) => {
     return res.status(200).json({ message: "success", holidays });
 }
 
-
 export const viewHoliday = async (req, res) => {
 
     const holidays = await holidayModel.find({ status: 'Waiting for approval', isDeleted: false })
@@ -48,8 +47,6 @@ export const viewHoliday = async (req, res) => {
     return res.status(200).json({ message: "success", allHolidays });
 }
 
-
-
 export const viewArchiveHoliday = async (req, res) => {
     const holiday = await holidayModel.find({ status: { $in: ['Accepted', 'Rejected'] } })
         .select('-_id startDate endDate type paid reason status')
@@ -69,7 +66,6 @@ export const viewArchiveHoliday = async (req, res) => {
 
 }
 
-
 export const approveHoliday = async (req, res) => {
     const { status, companyNote } = req.body;
     const { hashed_id } = req.params;
@@ -86,7 +82,6 @@ export const approveHoliday = async (req, res) => {
     }
     return res.status(200).json({ message: "success the response is send" });
 }
-
 
 export const deleteHoliday = async (req, res) => {
     const { id } = req.params;

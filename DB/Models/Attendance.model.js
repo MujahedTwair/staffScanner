@@ -10,19 +10,19 @@ const attendanceSchema = new Schema({
         type: Boolean,
     },
     enterTime: {
-        type: String,
+        type: Number,
         required: true
     },
     leaveTime: {
-        type: String,
-    },
-    date: {
-        type: String,
+        type: Number,
     },
     employeeId: {
         type: Types.ObjectId,
         ref: 'Employee',
         required: true
+    },
+    shiftEndDateTime:{
+        type: Date,
     }
 },{
     timestamps:true,
