@@ -19,7 +19,7 @@ export const createEmployeeSchema = {
 
 export const editIPAddressSchema = {
     body: joi.object({
-        IPAddress: joi.string().ip({ version: ['ipv4'] }).required(),
+        IPAddress: joi.string().required(),
     }),
 
 };
