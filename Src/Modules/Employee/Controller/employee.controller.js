@@ -6,18 +6,11 @@ import { getShiftEndDateTime } from '../../../Services/service.controller.js';
 
 export const checkIn = async (req, res) => {
     const employee = req.user;
-    const { macAddress } = req.body;
-    if (!employee.macAddress) {
-        employee.macAddress = macAddress;
-        await employee.save();
-    } else {
-        if (await checkMacAddress(employee, macAddress, res)) {
-            return;
-        }
-    }
+    const { device_Id } = req.body;
+    
     // const networkAddress = req.headers['x-forwarded-for'];
     const networkAddress = '188.225.231.226';
-    if (await checkIPAddress(employee, networkAddress, res)) {
+    if (await checkDeviceId(employee, device_Id, res) || await checkIPAddress(employee, networkAddress, res)) {
         return;
     }
 
@@ -45,10 +38,10 @@ export const checkIn = async (req, res) => {
 
 export const checkOut = async (req, res) => {
     const employee = req.user;
-    const { macAddress } = req.body;
+    const { device_Id } = req.body;
     // const networkAddress = req.headers['x-forwarded-for'];
     const networkAddress = '188.225.231.226';
-    if (await checkMacAddress(employee, macAddress, res) || (await checkIPAddress(employee, networkAddress, res))) {
+    if (await checkDeviceId(employee, device_Id, res) || (await checkIPAddress(employee, networkAddress, res))) {
         return;
     }
 
@@ -149,8 +142,8 @@ const addCheckIn = async (employee, res) => {
     return res.status(201).json({ message: "success check in", newCheckin });
 }
 
-const checkMacAddress = async (employee, macAddress, res) => {
-    if (employee.macAddress != macAddress) {
+const checkDeviceId = async (employee, device_Id, res) => {
+    if (employee.device_Id != device_Id) {
         return res.status(409).json({ message: "illegal attemp: This is not your phone, rejected" });
     }
 }

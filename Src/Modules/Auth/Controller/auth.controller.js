@@ -21,7 +21,7 @@ export const signupCompany = async (req, res) => {
 }
 
 export const signinEmpolyee = async (req, res) => {
-    const { userName, password } = req.body;
+    const { userName, password, device_Id } = req.body;
     const employee = await employeeModel.findOne({ userName });
     if (!employee) {
         return res.status(404).json({ message: "invaild userName" });
@@ -30,6 +30,10 @@ export const signinEmpolyee = async (req, res) => {
     if (!match) {
         return res.status(404).json({ message: "invaild password" });
     }
+    if(!employee.device_Id){
+        employee.device_Id = device_Id;
+        await employee.save()
+    } 
     const token = jwt.sign({ id: employee._id }, process.env.LOGINEMPLOYEE);
     return res.status(200).json({ message: "success you are employee", token });
 }

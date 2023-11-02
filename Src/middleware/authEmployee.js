@@ -21,7 +21,7 @@ const authEmployee = async (req, res, next) => {
     
     if (isVerified) {
 
-        const authEmployee = await employeeModel.findById(decoded.id).select("startChecking endChecking fullName email macAddress");
+        const authEmployee = await employeeModel.findById(decoded.id).select("startChecking endChecking fullName email device_Id");
 
         if (!authEmployee) {
             return res.status(401).json({ message: "not register account" })

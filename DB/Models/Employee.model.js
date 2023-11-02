@@ -24,8 +24,9 @@ const employeeSchema = new Schema({
         type: String,
         required: true
     },
-    macAddress: {
-        type: String
+    device_Id: {
+        type: String,
+        unique: true
     },
     companyId: {
         type: Types.ObjectId,

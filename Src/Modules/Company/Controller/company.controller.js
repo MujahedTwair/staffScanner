@@ -5,7 +5,7 @@ import attendanceModel from '../../../../DB/Models/Attendance.model.js';
 
 export const createEmployee = async (req, res) => {
   let employeeData = req.body;
-  const { email, userName, phoneNumber, startChecking, endChecking } = employeeData;
+  const { email, userName, phoneNumber } = employeeData;
   const employee = await employeeModel.findOne({
     $or: [
       { email },
@@ -80,6 +80,8 @@ export const getActiveEmployee = async (req, res) => {
       },
     },
   ]);
+
+  //ISP - can give you a service : Fixed IP
 
   const filteredActiveEmployees = activeEmployees.map((employee) => {
     delete employee._id;

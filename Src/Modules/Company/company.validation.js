@@ -9,7 +9,6 @@ export const createEmployeeSchema = {
         password: joi.string().min(6).max(20).required(),
         cPassword: joi.valid(joi.ref('password')).required(),
         // creationDate: joi.string().required(),
-        macAddress: joi.string(),
         // companyId: joi.string().required(),
         startChecking: joi.string().required(),
         endChecking: joi.string().required()
