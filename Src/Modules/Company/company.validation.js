@@ -20,7 +20,6 @@ export const createEmployeeSchema = {
 export const editIPAddressSchema = {
     body: joi.object({
         IPAddress: joi.string().required(),
-        subnetMask: joi.string().required()
     }),
 
 };
