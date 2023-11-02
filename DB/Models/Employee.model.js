@@ -24,7 +24,7 @@ const employeeSchema = new Schema({
         type: String,
         required: true
     },
-    device_Id: {
+    deviceId: {
         type: String,
         unique: true
     },
