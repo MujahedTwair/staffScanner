@@ -47,7 +47,11 @@ export const updateEmployeeSchema = {
         phoneNumber: joi.number(),
         email: joi.string().email(),
         password: joi.string().min(6).max(20),
-        cPassword: joi.valid(joi.ref('password')),
+        cPassword: joi.valid(joi.ref('password')).when('password', {
+            is: joi.exist(),
+            then: joi.required(),
+            otherwise: joi.forbidden()
+        }),
         deviceId: joi.string().max(16),
         startChecking: joi.string(),
         endChecking: joi.string()
