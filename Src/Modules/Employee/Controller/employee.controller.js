@@ -17,7 +17,7 @@ export const checkIn = async (req, res) => {
     }
 
     const { _id, startChecking, endChecking } = employee;
-    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, });
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
     if (!isWithinTimeRange(startChecking, endChecking, currentTime)) {
         return res.status(409).json({ message: "you are out of range checking, rejected", startChecking, endChecking, currentTime });
     }
@@ -48,11 +48,7 @@ export const checkOut = async (req, res) => {
     }
 
     const { _id, startChecking, endChecking } = employee;
-    const currentTime = new Date().toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-    });
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
     if (!(isWithinTimeRange(startChecking, endChecking, currentTime))) {
         return res.status(409).json({ message: "you are out of range checking, rejected", startChecking, endChecking, currentTime });
     }
@@ -91,13 +87,7 @@ export const newCheckin = async (req, res) => {
 export const getAllowedCheck = async (req, res) => {
     const employee = req.user;
     const { _id, startChecking, endChecking } = employee;
-    const currentTime = new Date().toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-        timeZone: 'Asia/Jerusalem'
-      });
-    return res.json({currentTime});
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
     if (!isWithinTimeRange(startChecking, endChecking, currentTime)) {
         return res.status(409).json({ message: "you are out of range checking, rejected", startChecking, endChecking, currentTime });
     }

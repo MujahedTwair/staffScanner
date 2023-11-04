@@ -110,7 +110,7 @@ export const checkInEmployee = async (req, res) => {
   const { employeeId } = req.body;
   const employee = await employeeModel.findOne({ _id: employeeId, companyId: company._id, isDeleted: false });
   const { startChecking, endChecking } = employee;
-  const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, });
+  const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
   if (!isWithinTimeRange(startChecking, endChecking, currentTime)) {
     return res.status(409).json({ message: `The employee ${employee.fullName} out of range checking, rejected`, startChecking, endChecking, currentTime });
   }
@@ -135,7 +135,8 @@ export const checkOutEmployee = async (req, res) => {
   const { employeeId } = req.body;
   const employee = await employeeModel.findOne({ _id: employeeId, companyId: company._id, isDeleted: false });
   const { startChecking, endChecking } = employee;
-  const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, });
+  const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
+
 
   if (!(isWithinTimeRange(startChecking, endChecking, currentTime))) {
     return res.status(409).json({ message: `The employee ${employee.fullName} out of range checking, rejected`, startChecking, endChecking, currentTime });
