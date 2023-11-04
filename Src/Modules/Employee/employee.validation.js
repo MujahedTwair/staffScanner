@@ -12,3 +12,11 @@ export const checkWithoutRejexSchema = {
         deviceId: joi.string().required().max(16),
     }),
 };
+
+export const updatePasswordSchema = {
+    body: joi.object({
+        oldPassword: joi.string().min(6).max(20).required(),
+        newPassword: joi.string().min(6).max(20).required(),
+        cPassword: joi.valid(joi.ref('newPassword')).required(),
+    }),
+}

@@ -168,6 +168,9 @@ export const solveCheckOut = async (req, res) => {
   const { attendanceId, checkOutDate } = req.body;
   const leaveTime = new Date(checkOutDate);
   const attendance = await attendanceModel.findById(attendanceId);
+  if(!attendance){
+    return res.status(400).json({ message: "Attendance not found" });
+  }
   if (attendance.isCheckOut) {
     return res.status(409).json({ message: "This attendace is already checked out, rejected" });
   }

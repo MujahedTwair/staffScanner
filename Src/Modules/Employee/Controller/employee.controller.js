@@ -1,13 +1,15 @@
 import { DateTime } from 'luxon';
+import bcrypt from 'bcryptjs';
 import attendanceModel from "../../../../DB/Models/Attendance.model.js";
 import companyModel from "../../../../DB/Models/Company.model.js";
-import { addCheckIn, getShiftEndDateTime, isWithinTimeRange } from '../../../Services/service.controller.js';
+import { addCheckIn, isWithinTimeRange } from '../../../Services/service.controller.js';
+import employeeModel from '../../../../DB/Models/Employee.model.js';
 
 
 export const checkIn = async (req, res) => {
     const employee = req.user;
     const { deviceId } = req.body;
-    
+
     // const networkAddress = req.headers['x-forwarded-for'];
     const networkAddress = '188.225.231.226';
     if (await checkDeviceId(employee, deviceId, res) || await checkIPAddress(employee, networkAddress, res)) {
@@ -119,6 +121,36 @@ export const welcome = async (req, res) => {
     return res.status(200).json({ fullName, start, end, currentDay, currentDate });
 }
 
+export const getAccountInformation = async (req, res) => {
+    const id = req.user._id;
+    const employee = await employeeModel.find({ _id: id }).select('-_id -companyId -password -isDeleted -deviceId -updatedAt -__v');
+    if (!employee) {
+        return res.status(409).json({ message: "ُEmployee not found" });
+    }
+    return res.status(201).json({ message: "success", employee });
+}
+
+export const updatePassword = async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const employee = await employeeModel.findById(req.user.id);
+    if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+    }
+    const match = bcrypt.compareSync(oldPassword, employee.password);
+    if (!match) {
+        return res.status(409).json({ message: "Old password is not correct" });
+    }
+    const hashedNewPassword = await bcrypt.hash(newPassword, parseInt(process.env.SALT_ROUND));
+    employee.password = hashedNewPassword;
+    await employee.save();
+    return res.status(201).json({ message: "Password updated successfully" });
+}
+
+
+export const logOut = async (req, res) => {
+
+}
+
 
 function convertToAMPM(timeString) {
     const [hours, minutes] = timeString.split(':').map(Number);
@@ -128,7 +160,6 @@ function convertToAMPM(timeString) {
 
     return formattedTime;
 }
-
 
 const checkDeviceId = async (employee, deviceId, res) => {
     if (employee.deviceId != deviceId) {
