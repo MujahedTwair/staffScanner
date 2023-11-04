@@ -123,7 +123,7 @@ export const welcome = async (req, res) => {
 
 export const getAccountInformation = async (req, res) => {
     const id = req.user._id;
-    const employee = await employeeModel.find({ _id: id }).select('-_id -companyId -password -isDeleted -deviceId -updatedAt -__v');
+    const employee = await employeeModel.findOne({ _id: id, isDeleted: false }).select('-_id -companyId -password -isDeleted -deviceId -updatedAt -__v');
     if (!employee) {
         return res.status(409).json({ message: "ُEmployee not found" });
     }
@@ -132,7 +132,7 @@ export const getAccountInformation = async (req, res) => {
 
 export const updatePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
-    const employee = await employeeModel.findById(req.user.id);
+    const employee = await employeeModel.findOne({ _id: req.user.id, isDeleted: false });
     if (!employee) {
         return res.status(404).json({ message: "Employee not found" });
     }

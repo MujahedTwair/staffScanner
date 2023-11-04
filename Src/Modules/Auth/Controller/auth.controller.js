@@ -22,7 +22,7 @@ export const signupCompany = async (req, res) => {
 
 export const signinEmpolyee = async (req, res) => {
     const { userName, password, deviceId } = req.body;
-    const employee = await employeeModel.findOne({ userName });
+    const employee = await employeeModel.findOne({ userName, isDeleted: false });
     if (!employee) {
         return res.status(404).json({ message: "invaild userName" });
     }

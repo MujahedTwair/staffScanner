@@ -67,6 +67,7 @@ export const getActiveEmployee = async (req, res) => {
     {
       $match: {
         'employeeData.companyId': company._id,
+        'employeeData.isDeleted': false,
       },
     },
     {
@@ -107,7 +108,7 @@ export const getIpAddress = async (req, res) => {
 export const checkInEmployee = async (req, res) => {
   const company = req.user;
   const { employeeId } = req.body;
-  const employee = await employeeModel.findOne({ _id: employeeId, companyId: company._id });
+  const employee = await employeeModel.findOne({ _id: employeeId, companyId: company._id, isDeleted: false });
   const { startChecking, endChecking } = employee;
   const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, });
   if (!isWithinTimeRange(startChecking, endChecking, currentTime)) {
@@ -132,7 +133,7 @@ export const checkInEmployee = async (req, res) => {
 export const checkOutEmployee = async (req, res) => {
   const company = req.user;
   const { employeeId } = req.body;
-  const employee = await employeeModel.findOne({ _id: employeeId, companyId: company._id });
+  const employee = await employeeModel.findOne({ _id: employeeId, companyId: company._id, isDeleted: false });
   const { startChecking, endChecking } = employee;
   const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, });
 
@@ -201,7 +202,7 @@ export const updateEmployee = async (req, res) => {
     const hashNewPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUND));
     updatedData.password = hashNewPassword;
   }
-  const updatedEmployee = await employeeModel.findOneAndUpdate({ _id: employeeId }, updatedData, { new: true });
+  const updatedEmployee = await employeeModel.findOneAndUpdate({ _id: employeeId, isDeleted: false }, updatedData, { new: true });
 
   if (!updatedEmployee) {
     return res.status(400).json({ message: "Employee not found" });
@@ -211,7 +212,7 @@ export const updateEmployee = async (req, res) => {
 
 export const deleteEmployee = async (req, res) => {
   const { employeeId } = req.params;
-  const employee = await employeeModel.findOneAndUpdate({ _id: employeeId }, { isDeleted: true }, { new: true });
+  const employee = await employeeModel.findOneAndUpdate({ _id: employeeId, isDeleted: false }, { isDeleted: true }, { new: true });
 
   if (!employee) {
     return res.status(402).json({ message: "Employees not found" });

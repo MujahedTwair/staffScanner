@@ -21,7 +21,7 @@ const authEmployee = async (req, res, next) => {
     
     if (isVerified) {
 
-        const authEmployee = await employeeModel.findById(decoded.id).select("startChecking endChecking fullName email deviceId");
+        const authEmployee = await employeeModel.findOne({ _id:decoded.id, isDeleted: false }).select("startChecking endChecking fullName email deviceId");
 
         if (!authEmployee) {
             return res.status(401).json({ message: "not register account" })
