@@ -92,6 +92,7 @@ export const getAllowedCheck = async (req, res) => {
     const employee = req.user;
     const { _id, startChecking, endChecking } = employee;
     const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, });
+    return res.json({currentTime});
     if (!isWithinTimeRange(startChecking, endChecking, currentTime)) {
         return res.status(409).json({ message: "you are out of range checking, rejected", startChecking, endChecking, currentTime });
     }
