@@ -38,6 +38,9 @@ const employeeSchema = new Schema({
     },
     endChecking: {
         type: String
+    },
+    isDeleted: {
+        type: Boolean
     }
 }, {
     timestamps: true
