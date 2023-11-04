@@ -22,3 +22,40 @@ export const editIPAddressSchema = {
     }),
 
 };
+
+export const checkEmployeeSchema = {
+    body: joi.object({
+        employeeId: joi.string().required(),
+    }),
+};
+
+export const solveCheckOutSchema = {
+    body: joi.object({
+        attendanceId: joi.string().required(),
+        checkOutDate: joi.date().required()
+    }),
+};
+
+export const updateEmployeeSchema = {
+    params: joi.object({
+        employeeId: joi.string().required()
+    }),
+
+    body: joi.object({
+        fullName: joi.string(),
+        userName: joi.string().alphanum(),
+        phoneNumber: joi.number(),
+        email: joi.string().email(),
+        password: joi.string().min(6).max(20),
+        cPassword: joi.valid(joi.ref('password')).required(),
+        deviceId: joi.string().max(16),
+        startChecking: joi.string(),
+        endChecking: joi.string()
+    }),
+}
+
+export const deleteEmployeeSchema = {
+    params: joi.object({
+        employeeId: joi.string().required()
+    })
+}

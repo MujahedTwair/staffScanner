@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import attendanceModel from "../../../../DB/Models/Attendance.model.js";
 import companyModel from "../../../../DB/Models/Company.model.js";
-import { getShiftEndDateTime } from '../../../Services/service.controller.js';
+import { addCheckIn, getShiftEndDateTime, isWithinTimeRange } from '../../../Services/service.controller.js';
 
 
 export const checkIn = async (req, res) => {
@@ -119,13 +119,6 @@ export const welcome = async (req, res) => {
     return res.status(200).json({ fullName, start, end, currentDay, currentDate });
 }
 
-function isWithinTimeRange(start, end, current) {
-    if (start <= end) {
-        return current >= start && current <= end;
-    } else {
-        return current >= start || current <= end;
-    }
-}
 
 function convertToAMPM(timeString) {
     const [hours, minutes] = timeString.split(':').map(Number);
@@ -136,11 +129,6 @@ function convertToAMPM(timeString) {
     return formattedTime;
 }
 
-const addCheckIn = async (employee, res) => {
-    const shiftEndDateTime = getShiftEndDateTime(employee.startChecking, employee.endChecking);
-    const newCheckin = await attendanceModel.create({ isCheckIn: true, isCheckOut: false, enterTime: Date.now(), employeeId: employee._id, shiftEndDateTime });
-    return res.status(201).json({ message: "success check in", newCheckin });
-}
 
 const checkDeviceId = async (employee, deviceId, res) => {
     if (employee.deviceId != deviceId) {

@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import { DateTime } from 'luxon';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 import attendanceModel from '../../../../DB/Models/Attendance.model.js';
+import { addCheckIn, isWithinTimeRange } from '../../../Services/service.controller.js';
 
 export const createEmployee = async (req, res) => {
   let employeeData = req.body;
@@ -103,4 +104,115 @@ export const getIpAddress = async (req, res) => {
   return res.status(201).json({ message: "success", Public_IP_Address: forwardedFor });
 }
 
+export const checkInEmployee = async (req, res) => {
+  const company = req.user;
+  const { employeeId } = req.body;
+  const employee = await employeeModel.findOne({ _id: employeeId, companyId: company._id });
+  const { startChecking, endChecking } = employee;
+  const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, });
+  if (!isWithinTimeRange(startChecking, endChecking, currentTime)) {
+    return res.status(409).json({ message: `The employee ${employee.fullName} out of range checking, rejected`, startChecking, endChecking, currentTime });
+  }
+  const lastCheckIn = await attendanceModel.findOne({ employeeId }).sort({ createdAt: -1 });
+  if (!lastCheckIn) {
+    return await addCheckIn(employee, res);
+  } else if (lastCheckIn.isCheckIn && !lastCheckIn.isCheckOut) {
+    if (new Date() <= lastCheckIn.shiftEndDateTime) {
+      return res.status(409).json({ message: `The employee ${employee.fullName} already checked in, if you want to check out go to checkOut button` });
+    } else {
+      return await addCheckIn(employee, res);
+    }
+  } else if (lastCheckIn.isCheckIn && lastCheckIn.isCheckOut) {
+    return await addCheckIn(employee, res);
+  }
+  return res.status(201).json({ message: "Nothing allowed, maybe something wrong, rejected" });
+
+}
+
+export const checkOutEmployee = async (req, res) => {
+  const company = req.user;
+  const { employeeId } = req.body;
+  const employee = await employeeModel.findOne({ _id: employeeId, companyId: company._id });
+  const { startChecking, endChecking } = employee;
+  const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, });
+
+  if (!(isWithinTimeRange(startChecking, endChecking, currentTime))) {
+    return res.status(409).json({ message: `The employee ${employee.fullName} out of range checking, rejected`, startChecking, endChecking, currentTime });
+  }
+
+  const lastCheckIn = await attendanceModel.findOne({ employeeId }).sort({ createdAt: -1 });
+
+  if (!lastCheckIn || (lastCheckIn.isCheckIn && lastCheckIn.isCheckOut)) {
+    return res.status(409).json({ message: `The employee ${employee.fullName} is not checked in yet, if you want to check in go to checkIn button` });
+  } else if (lastCheckIn.isCheckIn && !lastCheckIn.isCheckOut) {
+
+    const { shiftEndDateTime } = lastCheckIn;
+
+    const isOkCheckOut = new Date() <= shiftEndDateTime;
+    if (!isOkCheckOut) {
+      return res.status(409).json({ message: "This is not the same shift that checked in , please check in , Rejected" });
+    }
+
+    const newCheckOut = lastCheckIn;
+    newCheckOut.isCheckOut = true;
+    newCheckOut.leaveTime = Date.now();
+    newCheckOut.shiftEndDateTime = undefined; // Unset the field
+    await newCheckOut.save();
+    return res.status(201).json({ message: "success check out", newCheckOut });
+  }
+  return res.status(201).json({ message: "There is something wronge in database... , rejected" });
+
+}
+
+export const solveCheckOut = async (req, res) => {
+  const { attendanceId, checkOutDate } = req.body;
+  const leaveTime = new Date(checkOutDate);
+  const attendance = await attendanceModel.findById(attendanceId);
+  if (attendance.isCheckOut) {
+    return res.status(409).json({ message: "This attendace is already checked out, rejected" });
+  }
+  if (leaveTime > attendance.shiftEndDateTime) {
+    return res.status(409).json({ message: "It's not allowed to check out after this employee shift end" });
+  }
+  attendance.leaveTime = leaveTime.getTime();
+  attendance.isCheckOut = true;
+  attendance.shiftEndDateTime = undefined;
+  await attendance.save();
+  return res.status(201).json({ message: "The check-out done successfully ", attendance });
+}
+
+export const getEmployee = async (req, res) => {
+  const employees = await employeeModel.find({ isDeleted: false }).select('fullName _id userName')
+  if (!employees) {
+    return res.status(400).json({ message: "Employees not found" });
+  }
+
+  return res.status(201).json({ message: "success", employees });
+
+}
+
+export const updateEmployee = async (req, res) => {
+  const { employeeId } = req.params;
+  const { password, ...updatedData } = req.body;
+  if (password) {
+    const hashNewPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUND));
+    updatedData.password = hashNewPassword;
+  }
+  const updatedEmployee = await employeeModel.findOneAndUpdate({ _id: employeeId }, updatedData, { new: true });
+
+  if (!updatedEmployee) {
+    return res.status(400).json({ message: "Employee not found" });
+  }
+  return res.status(200).json({ message: "Successfully updated", updatedEmployee });
+}
+
+export const deleteEmployee = async (req, res) => {
+  const { employeeId } = req.params;
+  const employee = await employeeModel.findOneAndUpdate({ _id: employeeId }, { isDeleted: true }, { new: true });
+
+  if (!employee) {
+    return res.status(402).json({ message: "Employees not found" });
+  }
+  return res.status(201).json({ message: "success", employee });
+}
 //checkin

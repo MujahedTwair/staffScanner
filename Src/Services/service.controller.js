@@ -1,3 +1,5 @@
+import attendanceModel from "../../DB/Models/Attendance.model.js";
+
 export const  getShiftEndDateTime = (startCheckingTime, endCheckingTime) => {
     const [startHours, startMinutes] = startCheckingTime.split(':');
     const shiftStart = new Date();
@@ -16,4 +18,18 @@ export const  getShiftEndDateTime = (startCheckingTime, endCheckingTime) => {
     // return checkOutTime >= shiftStart && checkOutTime <= shiftEnd;
     // console.log(shiftStart,shiftEnd);
     return shiftEnd;
+}
+
+export const addCheckIn = async (employee, res) => {
+    const shiftEndDateTime = getShiftEndDateTime(employee.startChecking, employee.endChecking);
+    const newCheckin = await attendanceModel.create({ isCheckIn: true, isCheckOut: false, enterTime: Date.now(), employeeId: employee._id, shiftEndDateTime });
+    return res.status(201).json({ message: "success check in", newCheckin });
+}
+
+export const isWithinTimeRange = (start, end, current) => {
+    if (start <= end) {
+        return current >= start && current <= end;
+    } else {
+        return current >= start || current <= end;
+    }
 }

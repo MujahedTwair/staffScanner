@@ -13,7 +13,7 @@ const validation = (Schema) => {
         })
 
         if (validationArray.length > 0) {
-            return res.json({ message: "validation error", validationArray });
+            return res.status(403).json({ message: "validation error", validationArray });
         }
         else {
             next();
