@@ -13,7 +13,6 @@ app.get('/getAllowedCheck', authEmployee, asyncHandler(employeeController.getAll
 app.get('/welcome', authEmployee, asyncHandler(employeeController.welcome));
 
 app.get('/accountInformation', authEmployee, asyncHandler(employeeController.getAccountInformation));
-app.get('/logOut', authEmployee, asyncHandler(employeeController.logOut));
 app.patch('/updatePassword', authEmployee, validation(validationSchema.updatePasswordSchema), asyncHandler(employeeController.updatePassword));
 
 app.get('/ip', asyncHandler(employeeController.getIpAddress));
