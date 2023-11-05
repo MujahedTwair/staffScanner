@@ -14,17 +14,25 @@ export const requestHoliday = async (req, res) => {
 
 export const reviewHolidays = async (req, res) => {
     const holidays = await holidayModel.find({ employeeId: req.user._id, isDeleted: false })
-        .select('_id startDate endDate type paid reason companyNote status isDeleted')
+        .select('_id startDate endDate type paid reason companyNote status isDeleted isRead')
         .populate({
             path: 'employeeId',
             select: ' -_id userName'
-        })
+        });
 
     if (!holidays) {
         return res.status(404).json({ message: "No holiday requests found" });
     }
+    const originalHolidays = JSON.parse(JSON.stringify(holidays));
+
+    for (const holiday of holidays) {
+        if(!holiday.isRead){
+            holiday.isRead = true;
+            await holiday.save(); 
+        }
+      }
     
-    return res.status(200).json({ message: "success", holidays });
+    return res.status(200).json({ message: "success", originalHolidays });
 }
 
 export const viewHoliday = async (req, res) => {

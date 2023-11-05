@@ -40,11 +40,15 @@ const holidaySchema = new Schema({
     isDeleted: {
         type: Boolean,
         default: false,
+    },
+    isRead: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true,
 });
 
-const holidayModel = mongoose.model.Holiday || model('Holiday', holidaySchema);
+const holidayModel = mongoose.models.Holiday || model('Holiday', holidaySchema);
 
 export default holidayModel;

@@ -4,6 +4,7 @@ import attendanceModel from "../../../../DB/Models/Attendance.model.js";
 import companyModel from "../../../../DB/Models/Company.model.js";
 import { addCheckIn, isWithinTimeRange } from '../../../Services/service.controller.js';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
+import holidayModel from '../../../../DB/Models/Hoilday.model.js';
 
 
 export const checkIn = async (req, res) => {
@@ -108,13 +109,13 @@ export const getAllowedCheck = async (req, res) => {
 
 export const welcome = async (req, res) => {
     const employee = req.user;
-    const { fullName, startChecking, endChecking } = employee;
+    const { fullName, startChecking, endChecking, id } = employee;
     const start = convertToAMPM(startChecking);
     const end = convertToAMPM(endChecking);
     const currentDay = DateTime.now().setZone('Asia/Jerusalem').toFormat('cccc');
     const currentDate = DateTime.now().setZone('Asia/Jerusalem').toFormat('dd/MM/yyyy');
-
-    return res.status(200).json({ fullName, start, end, currentDay, currentDate });
+    const unReadHolidaysCount = await holidayModel.countDocuments({ employeeId: id, isRead: false });
+    return res.status(200).json({ fullName, start, end, currentDay, currentDate, unReadHolidaysCount });
 }
 
 export const getAccountInformation = async (req, res) => {
@@ -140,11 +141,6 @@ export const updatePassword = async (req, res) => {
     employee.password = hashedNewPassword;
     await employee.save();
     return res.status(201).json({ message: "Password updated successfully" });
-}
-
-
-export const logOut = async (req, res) => {
-
 }
 
 
