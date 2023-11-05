@@ -5,7 +5,7 @@ import validation from "../../middleware/validation.js";
 import * as validationSchema from './auth.validation.js'
 import asyncHandler from "../../middleware/errorHandling.js";
 
-app.post('/signinEmployee', validation(validationSchema.signinCompanySchema), asyncHandler(authController.signinEmpolyee));
+app.post('/signinEmployee', validation(validationSchema.signinEmployeeSchema), asyncHandler(authController.signinEmpolyee));
 app.post('/signinCompany', validation(validationSchema.signinCompanySchema), asyncHandler(authController.signinCompany));
 app.post('/signupCompany', asyncHandler(authController.signupCompany));
 

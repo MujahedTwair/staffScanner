@@ -30,7 +30,7 @@ export const createEmployee = async (req, res) => {
   employeeData.companyId = req.user._id;
   employeeData.isDeleted = false;
   const createUser = await employeeModel.create(employeeData);
-  return res.status(201).json({ message: "Employee added successfuly", createUser });
+  return res.status(201).json({ message: "Employee added successfully", createUser });
 
 }
 

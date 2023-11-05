@@ -32,7 +32,7 @@ export const signinEmpolyee = async (req, res) => {
     }
     if(!employee.deviceId){
         employee.deviceId = deviceId;
-        await employee.save()
+        await employee.save();
     } 
     const token = jwt.sign({ id: employee._id }, process.env.LOGINEMPLOYEE);
     return res.status(200).json({ message: "success you are employee", token });

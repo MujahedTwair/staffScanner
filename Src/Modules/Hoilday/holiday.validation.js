@@ -6,7 +6,7 @@ export const requestHolidaySchema = {
         endDate: joi.string().required(),
         type: joi.string().valid('Sick', 'Vacation', 'Travelling').required(),
         paid: joi.boolean().required(),
-        reason: joi.string().required()
+        reason: joi.string()
     }),
 
 };
