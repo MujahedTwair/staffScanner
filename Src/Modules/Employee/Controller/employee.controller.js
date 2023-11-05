@@ -114,7 +114,8 @@ export const welcome = async (req, res) => {
     const end = convertToAMPM(endChecking);
     const currentDay = DateTime.now().setZone('Asia/Jerusalem').toFormat('cccc');
     const currentDate = DateTime.now().setZone('Asia/Jerusalem').toFormat('dd/MM/yyyy');
-    const unReadHolidaysCount = await holidayModel.countDocuments({ employeeId: id, isRead: false });
+    const unReadHolidaysCount = await holidayModel.countDocuments({ employeeId: id, isRead: false, status: { $in: ['Accepted', 'Rejected'] } });
+
     return res.status(200).json({ fullName, start, end, currentDay, currentDate, unReadHolidaysCount });
 }
 

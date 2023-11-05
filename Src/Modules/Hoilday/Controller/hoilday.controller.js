@@ -13,12 +13,12 @@ export const requestHoliday = async (req, res) => {
 }
 
 export const reviewHolidays = async (req, res) => {
-    const holidays = await holidayModel.find({ employeeId: req.user._id, isDeleted: false })
+    const holidays = await holidayModel.find({ employeeId: req.user._id, isDeleted: false }).sort({ createdAt: -1 })
         .select('_id startDate endDate type paid reason companyNote status isDeleted isRead')
         .populate({
             path: 'employeeId',
             select: ' -_id userName'
-        });
+        })
 
     if (!holidays) {
         return res.status(404).json({ message: "No holiday requests found" });
@@ -26,18 +26,18 @@ export const reviewHolidays = async (req, res) => {
     const originalHolidays = JSON.parse(JSON.stringify(holidays));
 
     for (const holiday of holidays) {
-        if(!holiday.isRead){
+        if (!holiday.isRead) {
             holiday.isRead = true;
-            await holiday.save(); 
+            await holiday.save();
         }
-      }
-    
+    }
+
     return res.status(200).json({ message: "success", originalHolidays });
 }
 
 export const viewHoliday = async (req, res) => {
 
-    const holidays = await holidayModel.find({ status: 'Waiting for approval', isDeleted: false })
+    const holidays = await holidayModel.find({ status: 'Waiting for approval', isDeleted: false }).sort({ createdAt: -1 })
         .select('_id startDate endDate type paid reason status')
         .populate({
             path: 'employeeId',
@@ -56,7 +56,7 @@ export const viewHoliday = async (req, res) => {
 }
 
 export const viewArchiveHoliday = async (req, res) => {
-    const holiday = await holidayModel.find({ status: { $in: ['Accepted', 'Rejected'] } })
+    const holiday = await holidayModel.find({ status: { $in: ['Accepted', 'Rejected'] } }).sort({ createdAt: -1 })
         .select('-_id startDate endDate type paid reason status')
         .populate({
             path: 'employeeId',
