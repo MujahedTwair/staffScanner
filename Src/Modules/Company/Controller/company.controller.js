@@ -190,7 +190,7 @@ export const solveCheckOut = async (req, res) => {
   return res.status(201).json({ message: "The check-out done successfully ", attendance });
 }
 
-export const getEmployee = async (req, res) => {
+export const getEmployees = async (req, res) => {
   const employees = await employeeModel.find({ isDeleted: false }).select('fullName _id userName')
   if (!employees) {
     return res.status(400).json({ message: "Employees not found" });
@@ -223,6 +223,18 @@ export const deleteEmployee = async (req, res) => {
     return res.status(402).json({ message: "Employees not found" });
   }
   return res.status(201).json({ message: "success", employee });
+}
+
+export const getSpeceficEmployee = async (req, res) => {
+  const { id } = req.params;
+  const employee = await employeeModel.findOne({ _id: id, companyId: req.user.id, isDeleted: false })
+    .select('-createdAt -updatedAt -__v -password -isDeleted -companyId');
+  if (!employee) {
+    return res.status(409).json({ message: "Employee not found" });
+  }
+
+  return res.status(200).json({ message: "success", employee });
+
 }
 
 export const generateQr = async (req, res) => {

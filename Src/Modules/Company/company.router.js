@@ -14,7 +14,8 @@ app.post('/checkOutEmployee', authCompany, validation(validationSchema.checkEmpl
 app.patch('/solveCheckOut', authCompany, validation(validationSchema.solveCheckOutSchema), asyncHandler(companyController.solveCheckOut));
 app.get('/ip', authCompany, asyncHandler(companyController.getIpAddress));
 
-app.get('/getEmployee', authCompany, asyncHandler(companyController.getEmployee))
+app.get('/getEmployees', authCompany, asyncHandler(companyController.getEmployees));
+app.get('/getEmployee/:id', authCompany, asyncHandler(companyController.getSpeceficEmployee));
 app.put('/updateEmployee/:employeeId', authCompany, validation(validationSchema.updateEmployeeSchema), asyncHandler(companyController.updateEmployee))
 app.delete('/deleteEmployee/:employeeId', authCompany, validation(validationSchema.deleteEmployeeSchema), asyncHandler(companyController.deleteEmployee))
 

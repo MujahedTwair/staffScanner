@@ -14,8 +14,7 @@ const companySchema = new Schema({
         required: true
     },
     IPAddress: {
-        type: String,
-        required: true
+        type: String
     },
     QrImage: {
         type: Object,

@@ -43,7 +43,6 @@ export const updateEmployeeSchema = {
 
     body: joi.object({
         fullName: joi.string(),
-        userName: joi.string().alphanum(),
         phoneNumber: joi.number(),
         email: joi.string().email(),
         password: joi.string().min(6).max(20),
