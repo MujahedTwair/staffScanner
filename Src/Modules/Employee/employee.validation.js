@@ -20,3 +20,10 @@ export const updatePasswordSchema = {
         cPassword: joi.valid(joi.ref('newPassword')).required(),
     }),
 }
+
+export const scanQRSchema = {
+    body: joi.object({
+        deviceId: joi.string().required().max(16),
+        QrId: joi.string().required().max(36)
+    })
+}

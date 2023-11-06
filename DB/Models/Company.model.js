@@ -16,6 +16,12 @@ const companySchema = new Schema({
     IPAddress: {
         type: String,
         required: true
+    },
+    QrImage: {
+        type: Object,
+    },
+    QrId: {
+        type: String,
     }
 });
 

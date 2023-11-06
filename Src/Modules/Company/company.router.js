@@ -18,6 +18,7 @@ app.get('/getEmployee', authCompany, asyncHandler(companyController.getEmployee)
 app.put('/updateEmployee/:employeeId', authCompany, validation(validationSchema.updateEmployeeSchema), asyncHandler(companyController.updateEmployee))
 app.delete('/deleteEmployee/:employeeId', authCompany, validation(validationSchema.deleteEmployeeSchema), asyncHandler(companyController.deleteEmployee))
 
-
+app.get('/generateQR', authCompany, asyncHandler(companyController.generateQr));
+app.get('/QRImage', authCompany, asyncHandler(companyController.getQrImage));
 
 export default app;

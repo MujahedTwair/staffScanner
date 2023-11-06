@@ -161,7 +161,8 @@ const checkDeviceId = async (employee, deviceId, res) => {
 }
 
 const checkIPAddress = async (employee, IPAddress, res) => {
-    const company = await companyModel.findOne({ id: employee.companyId });
+    
+    const company = await companyModel.findById(employee.companyId);
     if (IPAddress != company.IPAddress) {
         return res.status(409).json({ message: "illegal attemp: Your not at company, rejected" });
     }

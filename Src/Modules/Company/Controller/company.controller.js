@@ -1,8 +1,12 @@
 import bcrypt from 'bcryptjs'
 import { DateTime } from 'luxon';
+import QRCode from 'qrcode';
+import { v4 as uuidv4 } from 'uuid';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 import attendanceModel from '../../../../DB/Models/Attendance.model.js';
 import { addCheckIn, isWithinTimeRange } from '../../../Services/service.controller.js';
+import cloudinary from '../../../Services/cloudinary.js';
+import companyModel from '../../../../DB/Models/Company.model.js';
 
 export const createEmployee = async (req, res) => {
   let employeeData = req.body;
@@ -170,7 +174,7 @@ export const solveCheckOut = async (req, res) => {
   const { attendanceId, checkOutDate } = req.body;
   const leaveTime = new Date(checkOutDate);
   const attendance = await attendanceModel.findById(attendanceId);
-  if(!attendance){
+  if (!attendance) {
     return res.status(400).json({ message: "Attendance not found" });
   }
   if (attendance.isCheckOut) {
@@ -219,5 +223,32 @@ export const deleteEmployee = async (req, res) => {
     return res.status(402).json({ message: "Employees not found" });
   }
   return res.status(201).json({ message: "success", employee });
+}
+
+export const generateQr = async (req, res) => {
+  const company = await companyModel.findById(req.user.id);
+  const QrId = uuidv4();
+  QRCode.toDataURL(QrId, async (err, code) => {
+    if (err) {
+      return res.status(404).json({ message: 'catch error', err });
+    }
+    const { secure_url, public_id } = await cloudinary.uploader.upload(code, { folder: `${process.env.APP_Name}` })
+    if (company.QrImage) {
+      await cloudinary.uploader.destroy(company.QrImage.public_id);
+    }
+    company.QrImage = { secure_url, public_id };
+    company.QrId = QrId;
+    await company.save();
+    return res.json({ message: "success", secure_url, QrId });
+  });
+}
+
+export const getQrImage = async (req, res) => {
+  const company = await companyModel.findById(req.user.id);
+  const imageUrl = company.QrImage.secure_url;
+  if (!imageUrl) {
+    return res.status(404).json({ message: "There is no QR-code yet, Please generate one" });
+  }
+  return res.status(200).json({ message: "success", imageUrl });
 }
 //checkin

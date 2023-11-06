@@ -12,7 +12,6 @@ export const requestHolidaySchema = {
       const startDate = DateTime.fromFormat(value.startDate, 'd/M/yyyy');
       const endDate = DateTime.fromFormat(value.endDate, 'd/M/yyyy');
       const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day');
-      console.log(now);
       if (startDate.isValid && endDate.isValid && startDate >= now && endDate >= startDate) {
         return value;
       } else {
