@@ -10,8 +10,8 @@ export const createEmployeeSchema = {
         cPassword: joi.valid(joi.ref('password')).required(),
         // creationDate: joi.string().required(),
         // companyId: joi.string().required(),
-        startChecking: joi.string().required(),
-        endChecking: joi.string().required()
+        startChecking: joi.string().required().regex(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/),
+        endChecking: joi.string().required().regex(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/)
 
     }),
 };

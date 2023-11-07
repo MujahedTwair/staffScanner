@@ -26,7 +26,7 @@ export const reviewHolidays = async (req, res) => {
     const originalHolidays = JSON.parse(JSON.stringify(holidays));
 
     for (const holiday of holidays) {
-        if (!holiday.isRead) {
+        if (!holiday.isRead && holiday.status != 'Waiting for approval') {
             holiday.isRead = true;
             await holiday.save();
         }
