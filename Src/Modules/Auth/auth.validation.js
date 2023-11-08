@@ -32,3 +32,10 @@ export const signinEmployeeSchema = {
 
 
 
+export const testSchema = {
+    query: joi.object({
+        page: joi.number().min(1),
+        perPage: joi.number().min(3).max(20)
+    })
+
+};

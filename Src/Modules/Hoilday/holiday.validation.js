@@ -35,3 +35,10 @@ export const deleteHolidaySchema = {
         id: joi.string().required(),
     }),
 };
+
+export const pageHolidaySchema = {
+  query: joi.object({
+    page: joi.number().min(1),
+    perPage: joi.number().min(3).max(20)
+  })
+}

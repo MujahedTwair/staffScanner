@@ -4,7 +4,7 @@ import QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 import attendanceModel from '../../../../DB/Models/Attendance.model.js';
-import { addCheckIn, isWithinTimeRange } from '../../../Services/service.controller.js';
+import { addCheckIn, getPagination, isWithinTimeRange } from '../../../Services/service.controller.js';
 import cloudinary from '../../../Services/cloudinary.js';
 import companyModel from '../../../../DB/Models/Company.model.js';
 
@@ -191,12 +191,21 @@ export const solveCheckOut = async (req, res) => {
 }
 
 export const getEmployees = async (req, res) => {
-  const employees = await employeeModel.find({ isDeleted: false }).select('fullName _id userName')
-  if (!employees) {
+  const { page, perPage } = req.query;
+  const { limit, offset } = getPagination(page, perPage);
+
+  const employees = await employeeModel.paginate({ isDeleted: false }, { select: 'fullName _id userName',limit, offset });
+  if (!employees.totalDocs) {
     return res.status(400).json({ message: "Employees not found" });
   }
 
-  return res.status(201).json({ message: "success", employees });
+  return res.status(201).json({
+    message: "success",
+    employees: employees.docs,
+    page: employees.page,
+    totalPages: employees.totalPages,
+    totalEmployees: employees.totalDocs
+  });
 
 }
 
@@ -241,17 +250,18 @@ export const generateQr = async (req, res) => {
   const company = await companyModel.findById(req.user.id);
   const QrId = uuidv4();
   QRCode.toDataURL(QrId, async (err, code) => {
-    if (err) {
-      return res.status(404).json({ message: 'catch error', err });
+    try {
+      const { secure_url, public_id } = await cloudinary.uploader.upload(code, { folder: `${process.env.APP_Name}` })
+      if (company.QrImage) {
+        await cloudinary.uploader.destroy(company.QrImage.public_id);
+      }
+      company.QrImage = { secure_url, public_id };
+      company.QrId = QrId;
+      await company.save();
+      return res.json({ message: "success", secure_url, QrId });
+    } catch (error) {
+      return res.status(500).json({ message: "catch error", error });
     }
-    const { secure_url, public_id } = await cloudinary.uploader.upload(code, { folder: `${process.env.APP_Name}` })
-    if (company.QrImage) {
-      await cloudinary.uploader.destroy(company.QrImage.public_id);
-    }
-    company.QrImage = { secure_url, public_id };
-    company.QrId = QrId;
-    await company.save();
-    return res.json({ message: "success", secure_url, QrId });
   });
 }
 

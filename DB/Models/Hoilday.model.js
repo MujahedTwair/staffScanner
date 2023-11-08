@@ -1,4 +1,5 @@
 import mongoose, { Schema, Types, model } from "mongoose";
+import mongoosePaginate from 'mongoose-paginate-v2';
 const holidaySchema = new Schema({
     startDate: {
         type: String,
@@ -47,6 +48,7 @@ const holidaySchema = new Schema({
 }, {
     timestamps: true,
 });
+holidaySchema.plugin(mongoosePaginate);
 
 const holidayModel = mongoose.models.Holiday || model('Holiday', holidaySchema);
 

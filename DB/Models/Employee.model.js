@@ -1,4 +1,5 @@
 import mongoose, { model, Schema, Types } from "mongoose";
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 const employeeSchema = new Schema({
     fullName: {
@@ -45,6 +46,7 @@ const employeeSchema = new Schema({
 }, {
     timestamps: true
 });
+employeeSchema.plugin(mongoosePaginate);
 
 const employeeModel = mongoose.models.Employee || model('Employee', employeeSchema); //to prevent create new model when exists already
 

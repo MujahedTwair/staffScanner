@@ -1,6 +1,6 @@
 import attendanceModel from "../../DB/Models/Attendance.model.js";
 
-export const  getShiftEndDateTime = (startCheckingTime, endCheckingTime) => {
+export const getShiftEndDateTime = (startCheckingTime, endCheckingTime) => {
     const [startHours, startMinutes] = startCheckingTime.split(':');
     const shiftStart = new Date();
     if (shiftStart.getHours() < startHours || shiftStart.getHours() == startHours && shiftStart.getMinutes() < startMinutes) {
@@ -33,3 +33,10 @@ export const isWithinTimeRange = (start, end, current) => {
         return current >= start || current <= end;
     }
 }
+
+export const getPagination = (page, size) => {
+    const limit = size ? +size : 3;
+    const offset = page ? (page - 1) * limit : 0;
+
+    return { limit, offset };
+};
