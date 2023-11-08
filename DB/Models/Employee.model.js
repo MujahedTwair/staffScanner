@@ -27,7 +27,8 @@ const employeeSchema = new Schema({
     },
     deviceId: {
         type: String,
-        unique: true
+        unique: true,
+        sparse: true,
     },
     companyId: {
         type: Types.ObjectId,

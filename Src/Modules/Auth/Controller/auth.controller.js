@@ -32,6 +32,9 @@ export const signinEmpolyee = async (req, res) => {
         return res.status(404).json({ message: "invaild password" });
     }
     if (!employee.deviceId) {
+        if (await employeeModel.findOne({ deviceId, isDeleted: false })) {
+            return res.status(404).json({ message: "This device already saved for another employee, please signin by your phone for the first time" });
+        }
         employee.deviceId = deviceId;
         await employee.save();
     }
