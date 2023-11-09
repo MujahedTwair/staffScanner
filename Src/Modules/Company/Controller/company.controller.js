@@ -47,56 +47,45 @@ export const editIPAddress = async (req, res) => {
 }
 
 export const getActiveEmployee = async (req, res) => {
-  const company = req.user;
+  const companyId = req.user.id;
+  const { page, perPage } = req.query;
+  const { limit, offset } = getPagination(page || 1, perPage);
 
-  const activeEmployees = await attendanceModel.aggregate([
-    {
-      $match: {
-        isCheckIn: true,
-        isCheckOut: false,
-        shiftEndDateTime: { $gte: new Date() }
-      },
-    },
-    {
-      $lookup: {
-        from: 'employees',
-        localField: 'employeeId',
-        foreignField: '_id',
-        as: 'employeeData',
-      },
-    },
-    {
-      $unwind: '$employeeData',
-    },
-    {
-      $match: {
-        'employeeData.companyId': company._id,
-        'employeeData.isDeleted': false,
-      },
-    },
-    {
-      $project: {
-        enterTime: 1,
-        employeeId: 1,
-        shiftEndDateTime: 1,
-        'employeeData._id': 1,
-        'employeeData.fullName': 1,
-        'employeeData.userName': 1,
-        'employeeData.phoneNumber': 1,
-      },
-    },
-  ]);
+  const employees = await employeeModel.find({ isDeleted: false, companyId })
+    .select('fullName userName phoneNumber startChecking endChecking')
+    .populate({
+      path: 'attendance',
+      options: { perDocumentLimit: 1, sort: { createdAt: -1 } },
+      select: '-updatedAt -__v '
+    });
 
-  //ISP - can give you a service : Fixed IP
+  const activeEmployees = employees
+    .filter((emp) => {
+      const lastCheckIn = emp.attendance[0];
+      return (
+        lastCheckIn?.isCheckIn &&
+        !lastCheckIn.isCheckOut &&
+        new Date() <= lastCheckIn.shiftEndDateTime
+      );
+    })
+    .map(employee => ({
+      employeeId: employee.id,
+      fullName: employee.fullName,
+      userName: employee.userName,
+      phoneNumber: employee.phoneNumber,
+      enterTime: DateTime.fromMillis(employee.attendance[0].enterTime, { zone: 'Asia/Jerusalem' }).toFormat('d/M/yyyy, h:mm a'),
+      shiftEndDateTime: DateTime.fromJSDate(employee.attendance[0].shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('d/M/yyyy, h:mm a')
+    }));
 
-  const filteredActiveEmployees = activeEmployees.map((employee) => {
-    delete employee._id;
-    delete employee.employeeData._id;
-    employee.enterTime = DateTime.fromMillis(employee.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('d/M/yyyy, h:mm a');
-    employee.shiftEndDateTime = DateTime.fromJSDate(employee.shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('d/M/yyyy, h:mm a');
-    return employee;
+  const paginateEmployees = activeEmployees.slice(offset, offset + limit);
+
+  return res.status(201).json({
+    message: "success",
+    employees: paginateEmployees,
+    page: page || 1,
+    totalPages: Math.ceil(activeEmployees.length / limit),
+    totalEmployees: activeEmployees.length
   });
-  return res.json({ activeEmployees: filteredActiveEmployees });
 }
 
 export const getIpAddress = async (req, res) => {
@@ -194,7 +183,7 @@ export const getEmployees = async (req, res) => {
   const { page, perPage } = req.query;
   const { limit, offset } = getPagination(page, perPage);
 
-  const employees = await employeeModel.paginate({ isDeleted: false }, { select: 'fullName _id userName',limit, offset });
+  const employees = await employeeModel.paginate({ isDeleted: false }, { select: 'fullName _id userName', limit, offset });
   if (!employees.totalDocs) {
     return res.status(400).json({ message: "Employees not found" });
   }
@@ -273,4 +262,4 @@ export const getQrImage = async (req, res) => {
   }
   return res.status(200).json({ message: "success", imageUrl });
 }
-//checkin
+

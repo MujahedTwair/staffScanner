@@ -45,10 +45,16 @@ const employeeSchema = new Schema({
         type: Boolean
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON:{ virtuals:true},
+    toObject:{ virtuals: true}
 });
 employeeSchema.plugin(mongoosePaginate);
-
+employeeSchema.virtual('attendance',{
+    localField:'_id',
+    foreignField:'employeeId',
+    ref:'Attendance'
+})
 const employeeModel = mongoose.models.Employee || model('Employee', employeeSchema); //to prevent create new model when exists already
 
 export default employeeModel;
