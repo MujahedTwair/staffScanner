@@ -76,13 +76,15 @@ export const getActiveEmployee = async (req, res) => {
       enterTime: DateTime.fromMillis(employee.attendance[0].enterTime, { zone: 'Asia/Jerusalem' }).toFormat('d/M/yyyy, h:mm a'),
       shiftEndDateTime: DateTime.fromJSDate(employee.attendance[0].shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('d/M/yyyy, h:mm a')
     }));
-
+    if(activeEmployees.length == 0){
+      return res.status(202).json({message: "There are no active employees right now"});
+    }
   const paginateEmployees = activeEmployees.slice(offset, offset + limit);
 
   return res.status(201).json({
     message: "success",
     employees: paginateEmployees,
-    page: page || 1,
+    page: +page || 1,
     totalPages: Math.ceil(activeEmployees.length / limit) || 1,
     totalEmployees: activeEmployees.length
   });
