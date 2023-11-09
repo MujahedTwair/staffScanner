@@ -83,7 +83,7 @@ export const getActiveEmployee = async (req, res) => {
     message: "success",
     employees: paginateEmployees,
     page: page || 1,
-    totalPages: Math.ceil(activeEmployees.length / limit),
+    totalPages: Math.ceil(activeEmployees.length / limit) || 1,
     totalEmployees: activeEmployees.length
   });
 }
