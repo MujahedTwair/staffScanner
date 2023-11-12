@@ -33,6 +33,8 @@ export const checkIn = async (req, res) => {
             return await addCheckIn(employee, res);
         }
     } else if (lastCheckIn.isCheckIn && lastCheckIn.isCheckOut) {
+      //  const lastDayChecked = DateTime.fromJSDate(lastCheckIn.createdAt, { zone: 'Asia/Jerusalem' })
+        //DateTime.now().setZone('Asia/Jerusalem').startOf('day');
         return await addCheckIn(employee, res);
     }
     return res.status(201).json({ message: "Nothing allowed to you, maybe something wrong, rejected" });

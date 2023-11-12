@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import attendanceModel from "../../DB/Models/Attendance.model.js";
 
 export const getShiftEndDateTime = (startCheckingTime, endCheckingTime) => {
@@ -21,7 +22,9 @@ export const getShiftEndDateTime = (startCheckingTime, endCheckingTime) => {
 }
 
 export const addCheckIn = async (employee, res) => {
-    const shiftEndDateTime = getShiftEndDateTime(employee.startChecking, employee.endChecking);
+    const shiftEnd = getShiftEndDateTime(employee.startChecking, employee.endChecking);
+    const shiftEndDateTime = DateTime.fromJSDate(shiftEnd).setZone('Asia/Jerusalem');
+    console.log(shiftEndDateTime);
     const newCheckin = await attendanceModel.create({ isCheckIn: true, isCheckOut: false, enterTime: Date.now(), employeeId: employee._id, shiftEndDateTime });
     return res.status(201).json({ message: "success check in", newCheckin });
 }
