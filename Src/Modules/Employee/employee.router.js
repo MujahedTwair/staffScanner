@@ -21,4 +21,9 @@ app.patch('/checkOutQR', authEmployee, validation(validationSchema.scanQRSchema)
 
 app.get('/ip', asyncHandler(employeeController.getIpAddress));
 
+app.get('/test', (req, res)=>{
+    const date = new Date();
+    return res.json({message:"success",date});
+})
+
 export default app;
