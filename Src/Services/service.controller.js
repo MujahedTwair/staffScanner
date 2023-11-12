@@ -3,23 +3,25 @@ import attendanceModel from "../../DB/Models/Attendance.model.js";
 
 export const getShiftEndDateTime = (startCheckingTime, endCheckingTime) => {
     const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
-    const [startHours, startMinutes] = startCheckingTime.split(':');
-    const [currentHours, currentMinutes] = currentTime.split(':');
-    const [endHours, endMinutes] = endCheckingTime.split(':');
+    const [startHours, startMinutes] = startCheckingTime.split(':').map(ele => +ele);
+    const [currentHours, currentMinutes] = currentTime.split(':').map(ele => +ele);
+    const [endHours, endMinutes] = endCheckingTime.split(':').map(ele => +ele);
 
-    const shiftStart = new Date();
-    shiftStart.setHours(shiftStart.getHours() - (currentHours - startHours), shiftStart.getMinutes() - (currentMinutes - startMinutes) );
+    // const shiftStart = DateTime.now().minus({ hours: minusTime(currentHours, startHours), minutes: (currentMinutes - startMinutes) });
+    const shiftEnd = DateTime.now().plus({ hours: minusTime(endHours, currentHours), minutes: (endMinutes - currentMinutes) });
 
-    const shiftEnd = new Date();
-    shiftEnd.setHours(shiftEnd.getHours() + (endHours - currentHours), shiftEnd.getMinutes() + (endMinutes - currentMinutes));
-
-    return shiftEnd;
+    return shiftEnd.startOf('minute');
 }
 
+const minusTime = (start, end) => {
+    if(start >= end){
+        return (start - end);
+    } else {
+        return (start - end + 24);
+    }
+}
 export const addCheckIn = async (employee, res) => {
     const shiftEndDateTime = getShiftEndDateTime(employee.startChecking, employee.endChecking);
-    // const shiftEndDateTime = DateTime.fromJSDate(shiftEnd).setZone('Asia/Jerusalem');
-    // console.log(shiftEndDateTime);
     const newCheckin = await attendanceModel.create({ isCheckIn: true, isCheckOut: false, enterTime: Date.now(), employeeId: employee._id, shiftEndDateTime });
     return res.status(201).json({ message: "success check in", newCheckin });
 }

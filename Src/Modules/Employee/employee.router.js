@@ -6,6 +6,7 @@ import * as validationSchema from './employee.validation.js'
 import asyncHandler from "../../middleware/errorHandling.js";
 import authEmployee from "../../middleware/authEmployee.js";
 import scanQR from "./scanQRMiddleware.js";
+import { DateTime } from "luxon";
 
 app.post('/checkIn', authEmployee, validation(validationSchema.checkWithoutRejexSchema), asyncHandler(employeeController.checkIn));
 app.patch('/checkOut', authEmployee, validation(validationSchema.checkWithoutRejexSchema), asyncHandler(employeeController.checkOut));
@@ -25,7 +26,8 @@ app.get('/test', (req, res) => {
     const date = new Date();
     const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
 
-    return res.json({ message: "success", date, currentTime });
+    const date2 = DateTime.now().startOf('minute');
+    return res.json({ message: "success", date,date2, currentTime });
 })
 
 export default app;
