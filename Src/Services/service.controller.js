@@ -2,29 +2,24 @@ import { DateTime } from "luxon";
 import attendanceModel from "../../DB/Models/Attendance.model.js";
 
 export const getShiftEndDateTime = (startCheckingTime, endCheckingTime) => {
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
     const [startHours, startMinutes] = startCheckingTime.split(':');
+    const [currentHours, currentMinutes] = currentTime.split(':');
+    const [endHours, endMinutes] = endCheckingTime.split(':');
+
     const shiftStart = new Date();
-    if (shiftStart.getHours() < startHours || shiftStart.getHours() == startHours && shiftStart.getMinutes() < startMinutes) {
-        shiftStart.setDate(shiftStart.getDate() - 1);
-    }
-    shiftStart.setHours(+startHours, +startMinutes, 0, 0);
+    shiftStart.setHours(shiftStart.getHours() - (currentHours - startHours), shiftStart.getMinutes() - (currentMinutes - startMinutes) );
 
     const shiftEnd = new Date();
-    shiftEnd.setHours(Number(endCheckingTime.split(':')[0]), Number(endCheckingTime.split(':')[1]), 0, 0);
+    shiftEnd.setHours(shiftEnd.getHours() + (endHours - currentHours), shiftEnd.getMinutes() + (endMinutes - currentMinutes));
 
-    if (shiftEnd < shiftStart) {
-        shiftEnd.setDate(shiftEnd.getDate() + 1);
-    }
-    // console.log(startCheckingTime, endCheckingTime, checkInTime, checkOutTime, shiftStart, shiftEnd);
-    // return checkOutTime >= shiftStart && checkOutTime <= shiftEnd;
-    // console.log(shiftStart,shiftEnd);
     return shiftEnd;
 }
 
 export const addCheckIn = async (employee, res) => {
-    const shiftEnd = getShiftEndDateTime(employee.startChecking, employee.endChecking);
-    const shiftEndDateTime = DateTime.fromJSDate(shiftEnd).setZone('Asia/Jerusalem');
-    console.log(shiftEndDateTime);
+    const shiftEndDateTime = getShiftEndDateTime(employee.startChecking, employee.endChecking);
+    // const shiftEndDateTime = DateTime.fromJSDate(shiftEnd).setZone('Asia/Jerusalem');
+    // console.log(shiftEndDateTime);
     const newCheckin = await attendanceModel.create({ isCheckIn: true, isCheckOut: false, enterTime: Date.now(), employeeId: employee._id, shiftEndDateTime });
     return res.status(201).json({ message: "success check in", newCheckin });
 }
