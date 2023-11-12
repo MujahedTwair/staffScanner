@@ -22,10 +22,5 @@ app.patch('/checkOutQR', authEmployee, validation(validationSchema.scanQRSchema)
 
 app.get('/ip', asyncHandler(employeeController.getIpAddress));
 
-app.get('/test', (req, res) => {
-    const date = new Date('2023-11-12T23:54:15.320+00:00');
-    const currentTime = DateTime.fromJSDate(date,{zone:'Asia/Jerusalem'});
-    return res.json({ message: "success", date,currentTime });
-})
 
 export default app;

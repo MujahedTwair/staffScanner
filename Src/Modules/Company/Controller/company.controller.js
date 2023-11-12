@@ -76,9 +76,9 @@ export const getActiveEmployee = async (req, res) => {
       enterTime: DateTime.fromMillis(employee.attendance[0].enterTime, { zone: 'Asia/Jerusalem' }).toFormat('d/M/yyyy, h:mm a'),
       shiftEndDateTime: DateTime.fromJSDate(employee.attendance[0].shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('d/M/yyyy, h:mm a')
     }));
-    if(activeEmployees.length == 0){
-      return res.status(202).json({message: "There are no active employees right now"});
-    }
+  if (activeEmployees.length == 0) {
+    return res.status(202).json({ message: "There are no active employees right now" });
+  }
   const paginateEmployees = activeEmployees.slice(offset, offset + limit);
 
   return res.status(201).json({
@@ -112,14 +112,20 @@ export const checkInEmployee = async (req, res) => {
   const lastCheckIn = await attendanceModel.findOne({ employeeId }).sort({ createdAt: -1 });
   if (!lastCheckIn) {
     return await addCheckIn(employee, currentTime, res);
-  } else if (lastCheckIn.isCheckIn && !lastCheckIn.isCheckOut) {
+  } else if (!lastCheckIn.isCheckOut) {
     if (new Date() <= lastCheckIn.shiftEndDateTime) {
       return res.status(409).json({ message: `The employee ${employee.fullName} already checked in, if you want to check out go to checkOut button` });
     } else {
       return await addCheckIn(employee, currentTime, res);
     }
-  } else if (lastCheckIn.isCheckIn && lastCheckIn.isCheckOut) {
-    return await addCheckIn(employee, currentTime, res);
+  } else if (lastCheckIn.isCheckOut) {
+    const lastDayChecked = DateTime.fromJSDate(lastCheckIn.createdAt, { zone: 'Asia/Jerusalem' }).toISODate();
+    const thisDay = DateTime.now().setZone('Asia/Jerusalem').toISODate();
+    if (lastDayChecked == thisDay) {
+      return res.status(404).json({ message: "Not allowed more than one check-in per day" });
+    } else {
+      return await addCheckIn(employee, currentTime, res);
+    }
   }
   return res.status(201).json({ message: "Nothing allowed, maybe something wrong, rejected" });
 
@@ -139,9 +145,9 @@ export const checkOutEmployee = async (req, res) => {
 
   const lastCheckIn = await attendanceModel.findOne({ employeeId }).sort({ createdAt: -1 });
 
-  if (!lastCheckIn || (lastCheckIn.isCheckIn && lastCheckIn.isCheckOut)) {
+  if (!lastCheckIn || lastCheckIn.isCheckOut) {
     return res.status(409).json({ message: `The employee ${employee.fullName} is not checked in yet, if you want to check in go to checkIn button` });
-  } else if (lastCheckIn.isCheckIn && !lastCheckIn.isCheckOut) {
+  } else if (!lastCheckIn.isCheckOut) {
 
     const { shiftEndDateTime } = lastCheckIn;
 
