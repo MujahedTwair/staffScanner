@@ -23,11 +23,9 @@ app.patch('/checkOutQR', authEmployee, validation(validationSchema.scanQRSchema)
 app.get('/ip', asyncHandler(employeeController.getIpAddress));
 
 app.get('/test', (req, res) => {
-    const date = new Date();
-    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
-
-    const date2 = DateTime.now().startOf('minute');
-    return res.json({ message: "success", date,date2, currentTime });
+    const date = new Date('2023-11-12T23:54:15.320+00:00');
+    const currentTime = DateTime.fromJSDate(date,{zone:'Asia/Jerusalem'});
+    return res.json({ message: "success", date,currentTime });
 })
 
 export default app;

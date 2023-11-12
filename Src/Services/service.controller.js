@@ -1,8 +1,7 @@
 import { DateTime } from "luxon";
 import attendanceModel from "../../DB/Models/Attendance.model.js";
 
-export const getShiftEndDateTime = (startCheckingTime, endCheckingTime) => {
-    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
+export const getShiftEndDateTime = (startCheckingTime, endCheckingTime, currentTime) => {
     const [startHours, startMinutes] = startCheckingTime.split(':').map(ele => +ele);
     const [currentHours, currentMinutes] = currentTime.split(':').map(ele => +ele);
     const [endHours, endMinutes] = endCheckingTime.split(':').map(ele => +ele);
@@ -13,15 +12,15 @@ export const getShiftEndDateTime = (startCheckingTime, endCheckingTime) => {
     return shiftEnd.startOf('minute');
 }
 
-const minusTime = (start, end) => {
-    if(start >= end){
-        return (start - end);
+const minusTime = (timeOne, timeTwo) => {
+    if(timeOne >= timeTwo){
+        return (timeOne - timeTwo);
     } else {
-        return (start - end + 24);
+        return (timeOne - timeTwo + 24);
     }
 }
-export const addCheckIn = async (employee, res) => {
-    const shiftEndDateTime = getShiftEndDateTime(employee.startChecking, employee.endChecking);
+export const addCheckIn = async (employee, currentTime, res) => {
+    const shiftEndDateTime = getShiftEndDateTime(employee.startChecking, employee.endChecking, currentTime);
     const newCheckin = await attendanceModel.create({ isCheckIn: true, isCheckOut: false, enterTime: Date.now(), employeeId: employee._id, shiftEndDateTime });
     return res.status(201).json({ message: "success check in", newCheckin });
 }

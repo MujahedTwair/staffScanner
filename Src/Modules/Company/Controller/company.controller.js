@@ -111,15 +111,15 @@ export const checkInEmployee = async (req, res) => {
   }
   const lastCheckIn = await attendanceModel.findOne({ employeeId }).sort({ createdAt: -1 });
   if (!lastCheckIn) {
-    return await addCheckIn(employee, res);
+    return await addCheckIn(employee, currentTime, res);
   } else if (lastCheckIn.isCheckIn && !lastCheckIn.isCheckOut) {
     if (new Date() <= lastCheckIn.shiftEndDateTime) {
       return res.status(409).json({ message: `The employee ${employee.fullName} already checked in, if you want to check out go to checkOut button` });
     } else {
-      return await addCheckIn(employee, res);
+      return await addCheckIn(employee, currentTime, res);
     }
   } else if (lastCheckIn.isCheckIn && lastCheckIn.isCheckOut) {
-    return await addCheckIn(employee, res);
+    return await addCheckIn(employee, currentTime, res);
   }
   return res.status(201).json({ message: "Nothing allowed, maybe something wrong, rejected" });
 
