@@ -31,7 +31,7 @@ app.get('/testReports', (req, res)=>{
     };
     const startDate = DateTime.fromFormat(startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
     const endDate = DateTime.fromFormat(endDuration, 'd/M/yyyy');
-    const nowJ = DateTime.now().setZone('Asia/Jurusalem');
+    const nowJ = DateTime.now().setZone('Asia/Jerusalem');
     const now = DateTime.now();
     return res.json({startDate,endDate,nowJ,now})
 })
