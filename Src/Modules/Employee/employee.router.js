@@ -22,5 +22,15 @@ app.patch('/checkOutQR', authEmployee, validation(validationSchema.scanQRSchema)
 
 app.get('/ip', asyncHandler(employeeController.getIpAddress));
 
+app.get('/reports', authEmployee, asyncHandler(employeeController.reports));
 
+app.get('/testReports', (req, res)=>{
+    const { startDuration, endDuration } = {
+        startDuration: "5/5/2023",
+        endDuration: "6/5/2023"
+    };
+    const startDate = DateTime.fromFormat(startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
+    const endDate = DateTime.fromFormat(endDuration, 'd/M/yyyy');
+    return res.json({startDate,endDate})
+})
 export default app;

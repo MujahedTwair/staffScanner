@@ -1,4 +1,4 @@
-import { DateTime } from 'luxon';
+import { DateTime, Duration } from 'luxon';
 import bcrypt from 'bcryptjs';
 import attendanceModel from "../../../../DB/Models/Attendance.model.js";
 import companyModel from "../../../../DB/Models/Company.model.js";
@@ -157,6 +157,25 @@ export const updatePassword = async (req, res) => {
     return res.status(201).json({ message: "Password updated successfully" });
 }
 
+export const reports = async (req, res) => {
+    const { _id } = req.user;
+    const { startDuration, endDuration } = req.body;
+    const startDate = DateTime.fromFormat(startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
+    const endDate = DateTime.fromFormat(endDuration, 'd/M/yyyy');
+    return res.json({startDate,endDate})
+    const employee = await employeeModel.findOne({_id, isDeleted: false}).populate('attendance');
+    const {attendance} = employee;
+    let miliSeconds = 0;
+    for (const element of attendance){
+        if(element.leaveTime){
+            miliSeconds += (element.leaveTime - element.enterTime);
+        }
+    }
+    const duration = Duration.fromObject({ milliseconds: miliSeconds });
+    let { hours } = duration.shiftTo('hours').toObject();
+    hours = hours.toFixed(2);
+    return res.status(200).json({ message: "success", miliSeconds, hours });
+}
 
 function convertToAMPM(timeString) {
     const [hours, minutes] = timeString.split(':').map(Number);
