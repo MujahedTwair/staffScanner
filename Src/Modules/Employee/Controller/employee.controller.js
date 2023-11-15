@@ -165,7 +165,7 @@ export const reports = async (req, res) => {
         endDuration = DateTime.fromFormat(endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').endOf('day');
     } else {
         startDuration = DateTime.now().setZone('Asia/Jerusalem').startOf('month');
-        endDuration = DateTime.now().setZone('Asia/Jerusalem').startOf('day');
+        endDuration = DateTime.now().setZone('Asia/Jerusalem').endOf('day');
     }
     
     const employee = await employeeModel.findOne({ _id, isDeleted: false, })
