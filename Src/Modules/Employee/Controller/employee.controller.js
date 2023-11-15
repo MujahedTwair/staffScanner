@@ -18,8 +18,8 @@ export const checkIn = async (req, res) => {
     }
 
     const { _id, startChecking, endChecking } = employee;
-    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });;
-    
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
+
     if (!isWithinTimeRange(startChecking, endChecking, currentTime)) {
         return res.status(409).json({ message: "you are out of range checking, rejected", startChecking, endChecking, currentTime });
     }
@@ -36,8 +36,8 @@ export const checkIn = async (req, res) => {
     } else if (lastCheckIn.isCheckOut) {
         const lastDayChecked = DateTime.fromJSDate(lastCheckIn.createdAt, { zone: 'Asia/Jerusalem' }).toISODate();
         const thisDay = DateTime.now().setZone('Asia/Jerusalem').toISODate();
-        if(lastDayChecked == thisDay){
-            return res.status(404).json({message: "Not allowed more than one check-in per day"});
+        if (lastDayChecked == thisDay) {
+            return res.status(404).json({ message: "Not allowed more than one check-in per day" });
         } else {
             return await addCheckIn(employee, currentTime, res);
         }
@@ -111,8 +111,8 @@ export const getAllowedCheck = async (req, res) => {
     } else if (lastCheckIn.isCheckOut) {
         const lastDayChecked = DateTime.fromJSDate(lastCheckIn.createdAt, { zone: 'Asia/Jerusalem' }).toISODate();
         const thisDay = DateTime.now().setZone('Asia/Jerusalem').toISODate();
-        if(lastDayChecked == thisDay){
-            return res.status(404).json({message: "Not allowed more than one check per day"});
+        if (lastDayChecked == thisDay) {
+            return res.status(404).json({ message: "Not allowed more than one check per day" });
         } else {
             return res.status(201).json({ message: "checkIn" });
         }
@@ -159,22 +159,60 @@ export const updatePassword = async (req, res) => {
 
 export const reports = async (req, res) => {
     const { _id } = req.user;
-    const { startDuration, endDuration } = req.body;
-    const startDate = DateTime.fromFormat(startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
-    const endDate = DateTime.fromFormat(endDuration, 'd/M/yyyy');
-    return res.json({startDate,endDate})
-    const employee = await employeeModel.findOne({_id, isDeleted: false}).populate('attendance');
-    const {attendance} = employee;
-    let miliSeconds = 0;
-    for (const element of attendance){
-        if(element.leaveTime){
-            miliSeconds += (element.leaveTime - element.enterTime);
+    let { startDuration, endDuration } = req.query;
+    if (startDuration && endDuration) {
+        startDuration = DateTime.fromFormat(startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').startOf('day');
+        endDuration = DateTime.fromFormat(endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').endOf('day');
+    } else {
+        startDuration = DateTime.now().setZone('Asia/Jerusalem').startOf('month');
+        endDuration = DateTime.now().setZone('Asia/Jerusalem').startOf('day');
+    }
+    
+    const employee = await employeeModel.findOne({ _id, isDeleted: false, })
+        .populate({
+            path: 'attendance',
+            match: {
+                createdAt: {
+                    $gte: startDuration,
+                    $lte: endDuration,
+                },
+            },
+        });
+    let allMiliSeconds = 0;
+    let days = [];
+    let notCorrectChecks = [];
+    const { attendance } = employee;
+    for (const element of attendance) {
+        if (element.leaveTime) {
+            const miliSeconds = element.leaveTime - element.enterTime;
+            const duration = Duration.fromObject({ milliseconds: miliSeconds });
+            let { hours } = duration.shiftTo('hours').toObject();
+            hours = hours.toFixed(2);
+            const day = DateTime.fromJSDate(element.createdAt, { zone: "Asia/Jerusalem" }).toFormat('d/M/yyyy');
+            const enterTime = DateTime.fromMillis(element.enterTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
+            const leaveTime = DateTime.fromMillis(element.leaveTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
+            days.push({ day, enterTime, leaveTime, hours });
+            allMiliSeconds += miliSeconds;
+
+        } else {
+            const day = DateTime.fromJSDate(element.createdAt, { zone: "Asia/Jerusalem" }).toFormat('d/M/yyyy');
+            const enterTime = DateTime.fromMillis(element.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('h:mm a, d/M/yyyy');
+            const shiftEnd = DateTime.fromJSDate(element.shiftEndDateTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
+            notCorrectChecks.push({ day, enterTime, shiftEnd });
         }
     }
-    const duration = Duration.fromObject({ milliseconds: miliSeconds });
+    const duration = Duration.fromObject({ milliseconds: allMiliSeconds });
     let { hours } = duration.shiftTo('hours').toObject();
     hours = hours.toFixed(2);
-    return res.status(200).json({ message: "success", miliSeconds, hours });
+    return res.status(200).json({
+        message: "success",
+        days,
+        totalHours: hours,
+        notCorrectChecks,
+        startDuration: startDuration.toFormat('d/M/yyyy'),
+        endDuration: endDuration.toFormat('d/M/yyyy'),
+        allMiliSeconds
+    });
 }
 
 function convertToAMPM(timeString) {
