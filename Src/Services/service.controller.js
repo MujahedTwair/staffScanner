@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { DateTime, Duration } from "luxon";
 import attendanceModel from "../../DB/Models/Attendance.model.js";
 
 export const getShiftEndDateTime = (startCheckingTime, endCheckingTime, currentTime) => {
@@ -13,7 +13,7 @@ export const getShiftEndDateTime = (startCheckingTime, endCheckingTime, currentT
 }
 
 const minusTime = (timeOne, timeTwo) => {
-    if(timeOne >= timeTwo){
+    if (timeOne >= timeTwo) {
         return (timeOne - timeTwo);
     } else {
         return (timeOne - timeTwo + 24);
@@ -39,3 +39,20 @@ export const getPagination = (page, size) => {
 
     return { limit, offset };
 };
+
+export const calculateHours = (milliseconds) => {
+    const duration = Duration.fromObject({ milliseconds });
+    const { hours } = duration.shiftTo('hours').toObject();
+    return hours.toFixed(2);
+}
+
+export const defulatDuration = (startDuration, endDuration) => {
+    if (startDuration && endDuration) {
+        startDuration = DateTime.fromFormat(startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').startOf('day');
+        endDuration = DateTime.fromFormat(endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').endOf('day');
+    } else {
+        startDuration = DateTime.now().setZone('Asia/Jerusalem').startOf('month');
+        endDuration = DateTime.now().setZone('Asia/Jerusalem').endOf('day');
+    }
+    return { startDuration, endDuration };
+}

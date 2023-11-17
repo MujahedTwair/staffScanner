@@ -22,4 +22,6 @@ app.delete('/deleteEmployee/:employeeId', authCompany, validation(validationSche
 app.get('/generateQR', authCompany, asyncHandler(companyController.generateQr));
 app.get('/QRImage', authCompany, asyncHandler(companyController.getQrImage));
 
+app.get('/reports', authCompany, validation(validationSchema.allReportsSchema), asyncHandler(companyController.allReports));
+
 export default app;

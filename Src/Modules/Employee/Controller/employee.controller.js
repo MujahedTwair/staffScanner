@@ -1,8 +1,8 @@
-import { DateTime, Duration } from 'luxon';
+import { DateTime } from 'luxon';
 import bcrypt from 'bcryptjs';
 import attendanceModel from "../../../../DB/Models/Attendance.model.js";
 import companyModel from "../../../../DB/Models/Company.model.js";
-import { addCheckIn, isWithinTimeRange } from '../../../Services/service.controller.js';
+import { addCheckIn, calculateHours, defulatDuration, isWithinTimeRange } from '../../../Services/service.controller.js';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 import holidayModel from '../../../../DB/Models/Hoilday.model.js';
 
@@ -160,13 +160,7 @@ export const updatePassword = async (req, res) => {
 export const reports = async (req, res) => {
     const { _id } = req.user;
     let { startDuration, endDuration } = req.query;
-    if (startDuration && endDuration) {
-        startDuration = DateTime.fromFormat(startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').startOf('day');
-        endDuration = DateTime.fromFormat(endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').endOf('day');
-    } else {
-        startDuration = DateTime.now().setZone('Asia/Jerusalem').startOf('month');
-        endDuration = DateTime.now().setZone('Asia/Jerusalem').endOf('day');
-    }
+    ({ startDuration, endDuration } = defulatDuration(startDuration, endDuration));
     
     const employee = await employeeModel.findOne({ _id, isDeleted: false, })
         .populate({
@@ -178,21 +172,19 @@ export const reports = async (req, res) => {
                 },
             },
         });
-    let allMiliSeconds = 0;
+    let allMilliSeconds = 0;
     let days = [];
     let notCorrectChecks = [];
     const { attendance } = employee;
     for (const element of attendance) {
         if (element.leaveTime) {
-            const miliSeconds = element.leaveTime - element.enterTime;
-            const duration = Duration.fromObject({ milliseconds: miliSeconds });
-            let { hours } = duration.shiftTo('hours').toObject();
-            hours = hours.toFixed(2);
+            const milliseconds = element.leaveTime - element.enterTime;
+            const hours = calculateHours(milliseconds);
             const day = DateTime.fromJSDate(element.createdAt, { zone: "Asia/Jerusalem" }).toFormat('d/M/yyyy');
             const enterTime = DateTime.fromMillis(element.enterTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
             const leaveTime = DateTime.fromMillis(element.leaveTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
             days.push({ day, enterTime, leaveTime, hours });
-            allMiliSeconds += miliSeconds;
+            allMilliSeconds += milliseconds;
 
         } else {
             const day = DateTime.fromJSDate(element.createdAt, { zone: "Asia/Jerusalem" }).toFormat('d/M/yyyy');
@@ -201,9 +193,7 @@ export const reports = async (req, res) => {
             notCorrectChecks.push({ day, enterTime, shiftEnd });
         }
     }
-    const duration = Duration.fromObject({ milliseconds: allMiliSeconds });
-    let { hours } = duration.shiftTo('hours').toObject();
-    hours = hours.toFixed(2);
+    const hours = calculateHours(allMilliSeconds);
     return res.status(200).json({
         message: "success",
         days,
@@ -211,7 +201,7 @@ export const reports = async (req, res) => {
         notCorrectChecks,
         startDuration: startDuration.toFormat('d/M/yyyy'),
         endDuration: endDuration.toFormat('d/M/yyyy'),
-        allMiliSeconds
+        allMilliSeconds
     });
 }
 

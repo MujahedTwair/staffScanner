@@ -1,4 +1,5 @@
 import joi from 'joi';
+import { DateTime } from 'luxon';
 
 export const createEmployeeSchema = {
     body: joi.object({
@@ -67,5 +68,31 @@ export const getEmployeesSchema = {
     query: joi.object({
         page: joi.number().min(1),
         perPage: joi.number().min(3).max(20)
+    })
+}
+
+export const allReportsSchema = {
+    query: joi.object({
+        page: joi.number().min(1),
+        perPage: joi.number().min(3).max(20)
+    }),
+    body: joi.object({
+        startDuration: joi.string(),
+        endDuration: joi.string().when('startDuration', {
+            is: joi.exist(),
+            then: joi.required(),
+            otherwise: joi.forbidden()
+        })
+    }).custom((value, helpers) => {
+        if (value && value.startDuration && value.endDuration) {
+            const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
+            const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
+            const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day');
+            if (startDuration.isValid && endDuration.isValid && startDuration <= now && endDuration >= startDuration) {
+                return value;
+            } else {
+                return helpers.error('End date must be a valid date and after the start date and not in the future');
+            }
+        }
     })
 }
