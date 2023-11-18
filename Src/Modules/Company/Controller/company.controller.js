@@ -276,7 +276,7 @@ export const allReports = async (req, res) => {
     const { page, perPage } = req.query;
     const { limit, offset } = getPagination(page || 1, perPage);
     const companyId = req.user.id;
-    let { startDuration, endDuration } = req.body;
+    let { startDuration, endDuration } = req.query;
     ({ startDuration, endDuration } = defulatDuration(startDuration, endDuration));
 
     const employees = await employeeModel.paginate({ companyId, isDeleted: false },

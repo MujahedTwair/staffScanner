@@ -74,9 +74,7 @@ export const getEmployeesSchema = {
 export const allReportsSchema = {
     query: joi.object({
         page: joi.number().min(1),
-        perPage: joi.number().min(3).max(20)
-    }),
-    body: joi.object({
+        perPage: joi.number().min(3).max(20),
         startDuration: joi.string(),
         endDuration: joi.string().when('startDuration', {
             is: joi.exist(),
@@ -98,7 +96,25 @@ export const allReportsSchema = {
 }
 
 export const reportSchema = {
-    query: allReportsSchema.body,
+    query: joi.object({
+        startDuration: joi.string(),
+        endDuration: joi.string().when('startDuration', {
+            is: joi.exist(),
+            then: joi.required(),
+            otherwise: joi.forbidden()
+        })
+    }).custom((value, helpers) => {
+        if (value && value.startDuration && value.endDuration) {
+            const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
+            const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
+            const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day');
+            if (startDuration.isValid && endDuration.isValid && now >= endDuration && endDuration >= startDuration) {
+                return value;
+            } else {
+                return helpers.error('End date must be a valid date and after the start date and not in the future');
+            }
+        }
+    }),
     
     params: joi.object({
         employeeId: joi.string().length(24).required()
