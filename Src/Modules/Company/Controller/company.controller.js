@@ -330,4 +330,14 @@ export const allReports = async (req, res) => {
         totalPages: employees.totalPages,
         totalEmployees: employees.totalDocs
     });
-} 
+}
+
+export const report = async (req, res, next) => {
+    const { employeeId } = req.params;
+    const employee = await employeeModel.findOne({ _id: employeeId, companyId: req.user.id });
+    if(!employee){
+        return res.status(409).json({ message: "Employee not found" });
+    }
+    req.user._id = employeeId;
+    next();
+}

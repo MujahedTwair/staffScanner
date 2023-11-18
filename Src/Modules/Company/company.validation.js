@@ -88,11 +88,19 @@ export const allReportsSchema = {
             const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
             const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
             const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day');
-            if (startDuration.isValid && endDuration.isValid && startDuration <= now && endDuration >= startDuration) {
+            if (startDuration.isValid && endDuration.isValid && now >= endDuration && endDuration >= startDuration) {
                 return value;
             } else {
                 return helpers.error('End date must be a valid date and after the start date and not in the future');
             }
         }
+    })
+}
+
+export const reportSchema = {
+    query: allReportsSchema.body,
+    
+    params: joi.object({
+        employeeId: joi.string().length(24).required()
     })
 }
