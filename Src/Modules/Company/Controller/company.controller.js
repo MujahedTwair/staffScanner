@@ -341,5 +341,6 @@ export const report = async (req, res, next) => {
         return res.status(409).json({ message: "Employee not found" });
     }
     req.user._id = employeeId;
+    req.role = 'company';
     next();
 }

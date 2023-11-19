@@ -190,12 +190,16 @@ export const reports = async (req, res) => {
             const day = DateTime.fromJSDate(element.createdAt, { zone: "Asia/Jerusalem" }).toFormat('d/M/yyyy');
             const enterTime = DateTime.fromMillis(element.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('h:mm a, d/M/yyyy');
             const shiftEnd = DateTime.fromJSDate(element.shiftEndDateTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
-            notCorrectChecks.push({ day, enterTime, shiftEnd });
+            const attendaceId = req.role == 'company' ? element.id : undefined;
+            notCorrectChecks.push({ day, enterTime, shiftEnd, attendaceId });
         }
     }
     const hours = calculateHours(allMilliSeconds);
+    const {userName, fullName} = req.role == 'company' ? employee : '';
     return res.status(200).json({
         message: "success",
+        userName,
+        fullName,
         days,
         totalHours: hours,
         notCorrectChecks,

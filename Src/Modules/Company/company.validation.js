@@ -32,7 +32,7 @@ export const checkEmployeeSchema = {
 
 export const solveCheckOutSchema = {
     body: joi.object({
-        attendanceId: joi.string().required(),
+        attendanceId: joi.string().length(24).required(),
         checkOutDate: joi.date().required()
     }),
 };
