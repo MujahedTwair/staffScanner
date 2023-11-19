@@ -63,8 +63,8 @@ export const convertToAMPM = (timeString) => {
     date.setHours(hours, minutes);
 
     const formattedTime = date.toLocaleString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
+        hour: 'numeric',
+        minute: 'numeric',
         hour12: true,
     });
     return formattedTime;
