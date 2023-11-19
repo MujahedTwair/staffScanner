@@ -71,6 +71,12 @@ export const getEmployeesSchema = {
     })
 }
 
+export const getEmloyeeSchema = {
+    params: joi.object({
+        employeeId: joi.string().length(24).required()
+    })
+}
+
 export const allReportsSchema = {
     query: joi.object({
         page: joi.number().min(1),

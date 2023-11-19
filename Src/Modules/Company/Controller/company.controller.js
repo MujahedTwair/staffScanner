@@ -4,7 +4,7 @@ import QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 import attendanceModel from '../../../../DB/Models/Attendance.model.js';
-import { addCheckIn, calculateHours, defulatDuration, getPagination, isWithinTimeRange } from '../../../Services/service.controller.js';
+import { addCheckIn, calculateHours, convertToAMPM, defulatDuration, getPagination, isWithinTimeRange } from '../../../Services/service.controller.js';
 import cloudinary from '../../../Services/cloudinary.js';
 import companyModel from '../../../../DB/Models/Company.model.js';
 
@@ -233,12 +233,14 @@ export const deleteEmployee = async (req, res) => {
 }
 
 export const getSpeceficEmployee = async (req, res) => {
-    const { id } = req.params;
-    const employee = await employeeModel.findOne({ _id: id, companyId: req.user.id, isDeleted: false })
+    const { employeeId } = req.params;
+    const employee = await employeeModel.findOne({ _id: employeeId, companyId: req.user.id, isDeleted: false })
         .select('-createdAt -updatedAt -__v -password -isDeleted -companyId');
     if (!employee) {
         return res.status(409).json({ message: "Employee not found" });
     }
+    employee.startChecking = convertToAMPM(employee.startChecking);
+    employee.endChecking = convertToAMPM(employee.endChecking);
 
     return res.status(200).json({ message: "success", employee });
 

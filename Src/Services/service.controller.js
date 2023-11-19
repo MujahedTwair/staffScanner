@@ -56,3 +56,16 @@ export const defulatDuration = (startDuration, endDuration) => {
     }
     return { startDuration, endDuration };
 }
+
+export const convertToAMPM = (timeString) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes);
+
+    const formattedTime = date.toLocaleString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+    });
+    return formattedTime;
+}

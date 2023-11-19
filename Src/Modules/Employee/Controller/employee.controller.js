@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import bcrypt from 'bcryptjs';
 import attendanceModel from "../../../../DB/Models/Attendance.model.js";
 import companyModel from "../../../../DB/Models/Company.model.js";
-import { addCheckIn, calculateHours, defulatDuration, isWithinTimeRange } from '../../../Services/service.controller.js';
+import { addCheckIn, calculateHours, convertToAMPM, defulatDuration, isWithinTimeRange } from '../../../Services/service.controller.js';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 import holidayModel from '../../../../DB/Models/Hoilday.model.js';
 
@@ -203,15 +203,6 @@ export const reports = async (req, res) => {
         endDuration: endDuration.toFormat('d/M/yyyy'),
         allMilliSeconds
     });
-}
-
-function convertToAMPM(timeString) {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    const period = hours < 12 ? 'Am' : 'Pm';
-    const formattedHours = hours % 12 || 12;
-    const formattedTime = `${formattedHours}:${minutes} ${period}`;
-
-    return formattedTime;
 }
 
 const checkDeviceId = async (employee, deviceId, res) => {

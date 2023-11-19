@@ -16,7 +16,7 @@ app.patch('/solveCheckOut', authCompany, validation(validationSchema.solveCheckO
 app.get('/ip', authCompany, asyncHandler(companyController.getIpAddress));
 
 app.get('/getEmployees', authCompany, validation(validationSchema.getEmployeesSchema), asyncHandler(companyController.getEmployees));
-app.get('/getEmployee/:id', authCompany, asyncHandler(companyController.getSpeceficEmployee));
+app.get('/getEmployee/:employeeId', authCompany, validation(validationSchema.getEmloyeeSchema), asyncHandler(companyController.getSpeceficEmployee));
 app.put('/updateEmployee/:employeeId', authCompany, validation(validationSchema.updateEmployeeSchema), asyncHandler(companyController.updateEmployee))
 app.delete('/deleteEmployee/:employeeId', authCompany, validation(validationSchema.deleteEmployeeSchema), asyncHandler(companyController.deleteEmployee))
 
@@ -26,5 +26,5 @@ app.get('/QRImage', authCompany, asyncHandler(companyController.getQrImage));
 app.get('/reports', authCompany, validation(validationSchema.allReportsSchema), asyncHandler(companyController.allReports));
 app.get('/report/:employeeId', authCompany, validation(validationSchema.reportSchema), asyncHandler(companyController.report),
     asyncHandler(employeeController.reports));
-    
+
 export default app;
