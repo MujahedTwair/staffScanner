@@ -103,9 +103,6 @@ export const allReportsSchema = {
 
 export const reportSchema = {
     query: joi.object({
-        totalHours: joi.boolean(),
-        page: joi.number().min(1),
-        perPage: joi.number().min(3).max(30),
         startDuration: joi.string(),
         endDuration: joi.string().when('startDuration', {
             is: joi.exist(),

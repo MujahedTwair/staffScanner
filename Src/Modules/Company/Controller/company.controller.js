@@ -334,73 +334,13 @@ export const allReports = async (req, res) => {
     });
 }
 
-export const report = async (req, res) => {
+export const report = async (req, res, next) => {
     const { employeeId } = req.params;
-    const employee = await employeeModel.findOne({_id : employeeId, isDeleted: false});
+    const employee = await employeeModel.findOne({ _id: employeeId, companyId: req.user.id });
     if(!employee){
-        return res.status(404).json({ message: "Employee not found" });
+        return res.status(409).json({ message: "Employee not found" });
     }
-    
-    const { totalHours, page, perPage } = req.query;
-    const { limit, offset } = getPagination(page, perPage);
-    let { startDuration, endDuration } = req.query;
-    ({ startDuration, endDuration } = defulatDuration(startDuration, endDuration));
-
-    const attendances = await attendanceModel.paginate({ employeeId }, {
-        match: {
-            createdAt: {
-                $gte: startDuration,
-                $lte: endDuration,
-            },
-        },
-        limit,
-        offset,
-        pagination: !totalHours,
-    });
-           
-    let allMilliSeconds = 0;
-    let days = [];
-    let notCorrectChecks = [];
-    for (const element of attendances.docs) {
-        if (element.leaveTime) {
-            const milliseconds = element.leaveTime - element.enterTime;
-            const hours = calculateHours(milliseconds);
-            const day = DateTime.fromJSDate(element.createdAt, { zone: "Asia/Jerusalem" }).toFormat('d/M/yyyy');
-            const enterTime = DateTime.fromMillis(element.enterTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
-            const leaveTime = DateTime.fromMillis(element.leaveTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
-            days.push({ day, enterTime, leaveTime, hours });
-            allMilliSeconds += milliseconds;
-
-        } else {
-            const day = DateTime.fromJSDate(element.createdAt, { zone: "Asia/Jerusalem" }).toFormat('d/M/yyyy');
-            const enterTime = DateTime.fromMillis(element.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('h:mm a, d/M/yyyy');
-            const shiftEnd = DateTime.fromJSDate(element.shiftEndDateTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
-            const attendaceId =element.id ;
-            notCorrectChecks.push({ day, enterTime, shiftEnd, attendaceId });
-        }
-    }
-    const {userName, fullName} = employee;
-    if(totalHours){
-        const hours = calculateHours(allMilliSeconds);
-        return res.status(200).json({
-            message: "success",
-            totalHours:hours,
-            userName,
-            fullName,
-            startDuration: startDuration.toFormat('d/M/yyyy'),
-            endDuration: endDuration.toFormat('d/M/yyyy'),
-        })
-    }
-    return res.status(200).json({
-        message: "success",
-        userName,
-        fullName,
-        days,
-        notCorrectChecks,
-        startDuration: startDuration.toFormat('d/M/yyyy'),
-        endDuration: endDuration.toFormat('d/M/yyyy'),
-        page: attendances.page,
-        totalPages: attendances.totalPages,
-        totalAttendances: attendances.totalDocs
-    });
+    req.user._id = employeeId;
+    req.role = 'company';
+    next();
 }

@@ -1,6 +1,7 @@
 import express from "express";
 const app = express();
 import * as companyController from './Controller/company.controller.js';
+import * as employeeController from './../Employee/Controller/employee.controller.js';
 import authCompany from "../../middleware/authCompany.js";
 import validation from "../../middleware/validation.js";
 import * as validationSchema from './company.validation.js'
@@ -23,6 +24,7 @@ app.get('/generateQR', authCompany, asyncHandler(companyController.generateQr));
 app.get('/QRImage', authCompany, asyncHandler(companyController.getQrImage));
 
 app.get('/reports', authCompany, validation(validationSchema.allReportsSchema), asyncHandler(companyController.allReports));
-app.get('/report/:employeeId', authCompany, validation(validationSchema.reportSchema), asyncHandler(companyController.report));
+app.get('/report/:employeeId', authCompany, validation(validationSchema.reportSchema), asyncHandler(companyController.report),
+    asyncHandler(employeeController.reports));
 
 export default app;
