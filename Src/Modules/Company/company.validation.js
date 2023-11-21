@@ -89,10 +89,11 @@ export const allReportsSchema = {
         })
     }).custom((value, helpers) => {
         if (value && value.startDuration && value.endDuration) {
-            const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
-            const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
-            const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day');
-            if (startDuration.isValid && endDuration.isValid && now >= endDuration && endDuration >= startDuration) {
+            const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').toMillis();
+            const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').toMillis();
+            const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day').toMillis();
+            console.log(now == endDuration);
+            if (startDuration && endDuration && now >= endDuration && endDuration >= startDuration) {
                 return value;
             } else {
                 return helpers.error('End date must be a valid date and after the start date and not in the future');
@@ -114,10 +115,11 @@ export const reportSchema = {
         })
     }).custom((value, helpers) => {
         if (value && value.startDuration && value.endDuration) {
-            const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
-            const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem');
-            const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day');
-            if (startDuration.isValid && endDuration.isValid && now >= endDuration && endDuration >= startDuration) {
+            const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').toMillis();
+            const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').toMillis();
+            const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day').toMillis();
+            console.log(now == endDuration);
+            if (startDuration && endDuration && now >= endDuration && endDuration >= startDuration) {
                 return value;
             } else {
                 return helpers.error('End date must be a valid date and after the start date and not in the future');
