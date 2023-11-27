@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import { DateTime } from 'luxon';
+import { DateTime, Zone } from 'luxon';
 import QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
@@ -174,8 +174,8 @@ export const solveCheckOut = async (req, res) => {
     if (!attendance) {
         return res.status(400).json({ message: "Attendance not found" });
     }
-    const enterTime = DateTime.fromMillis(attendance.enterTime).toFormat('hh:mm');
-    const shiftEndTime = DateTime.fromJSDate(attendance.shiftEndDateTime).toFormat('hh:mm');
+    const enterTime = DateTime.fromMillis(attendance.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('hh:mm');
+    const shiftEndTime = DateTime.fromJSDate(attendance.shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('hh:mm');
     return res.json({enterTime,shiftEndTime});
     if(!isWithinTimeRange(attendance.enterTime , attendance.shiftEndDateTime, checkOutTime))
 
