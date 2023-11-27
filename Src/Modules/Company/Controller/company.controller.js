@@ -4,7 +4,7 @@ import QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 import attendanceModel from '../../../../DB/Models/Attendance.model.js';
-import { addCheckIn, calculateHours, convertToAMPM, defulatDuration, getPagination, isWithinTimeRange } from '../../../Services/service.controller.js';
+import { addCheckIn, calculateHours, convertToAMPM, defulatDuration, getCheckOutDate, getPagination, isWithinTimeRange } from '../../../Services/service.controller.js';
 import cloudinary from '../../../Services/cloudinary.js';
 import companyModel from '../../../../DB/Models/Company.model.js';
 
@@ -174,9 +174,15 @@ export const solveCheckOut = async (req, res) => {
     if (!attendance) {
         return res.status(400).json({ message: "Attendance not found" });
     }
-    const enterTime = DateTime.fromMillis(attendance.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('hh:mm');
-    const shiftEndTime = DateTime.fromJSDate(attendance.shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('hh:mm');
-    return res.json({enterTime,shiftEndTime});
+    const enterTime = DateTime.fromMillis(attendance.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('HH:mm');
+    const shiftEndTime = DateTime.fromJSDate(attendance.shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('HH:mm');
+    if(!isWithinTimeRange(enterTime,shiftEndTime,checkOutTime)){
+        return res.status(400).json({ message: "Check out time must be in the range",enterTime,shiftEndTime,checkOutTime });
+    }
+    const checkOutDate = getCheckOutDate(shiftEndTime, attendance.shiftEndDateTime, checkOutTime);
+    attendance.leaveTime = checkOutDate.toMillis();
+    await attendance.save();
+    return res.json({ enterTime, shiftEndTime, checkOutTime, shiftEndDateTime: attendance.shiftEndDateTime, checkOutDate });
     if(!isWithinTimeRange(attendance.enterTime , attendance.shiftEndDateTime, checkOutTime))
 
     if (attendance.isCheckOut) {
