@@ -1,4 +1,4 @@
-import { DateTime, Duration } from "luxon";
+import { DateTime, Duration, Zone } from "luxon";
 import attendanceModel from "../../DB/Models/Attendance.model.js";
 
 export const getShiftEndDateTime = (startCheckingTime, endCheckingTime, currentTime) => {
@@ -6,19 +6,28 @@ export const getShiftEndDateTime = (startCheckingTime, endCheckingTime, currentT
     const [currentHours, currentMinutes] = currentTime.split(':').map(ele => +ele);
     const [endHours, endMinutes] = endCheckingTime.split(':').map(ele => +ele);
 
-    // const shiftStart = DateTime.now().minus({ hours: minusTime(currentHours, startHours), minutes: (currentMinutes - startMinutes) });
-    const shiftEnd = DateTime.now().plus({ hours: minusTime(endHours, currentHours), minutes: (endMinutes - currentMinutes) });
+    // const shiftStart = DateTime.now().minus({ hours: minusHour(currentHours, startHours), minutes: (currentMinutes - startMinutes) });
+    const shiftEnd = DateTime.now().plus({ hours: minusHour(endHours, currentHours), minutes: (endMinutes - currentMinutes) });
 
     return shiftEnd.startOf('minute');
 }
 
-const minusTime = (timeOne, timeTwo) => {
+export const getCheckOutDate = (shiftEndTime , shiftEndDateTime, checkOutTime)=>{
+    const [outHours, outMinutes] = checkOutTime.split(':').map(ele => +ele);
+    const [endHours, endMinutes] = shiftEndTime.split(':').map(ele => +ele);
+    const checkOutDate = DateTime.fromJSDate(shiftEndDateTime, { zone: 'Asia/Jerusalem' })
+        .minus({ hours: minusHour(endHours, outHours), minutes: (endMinutes - outMinutes) });
+    return checkOutDate;
+}
+
+const minusHour = (timeOne, timeTwo) => {
     if (timeOne >= timeTwo) {
         return (timeOne - timeTwo);
     } else {
         return (timeOne - timeTwo + 24);
     }
 }
+
 export const addCheckIn = async (employee, currentTime, res) => {
     const shiftEndDateTime = getShiftEndDateTime(employee.startChecking, employee.endChecking, currentTime);
     const newCheckin = await attendanceModel.create({ isCheckIn: true, isCheckOut: false, enterTime: Date.now(), employeeId: employee._id, shiftEndDateTime });
