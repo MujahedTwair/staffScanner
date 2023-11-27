@@ -169,33 +169,28 @@ export const checkOutEmployee = async (req, res) => {
 
 export const solveCheckOut = async (req, res) => {
     const { attendanceId, checkOutTime } = req.body;
-    // const leaveTime = new Date(checkOutDate);
     const attendance = await attendanceModel.findById(attendanceId);
     if (!attendance) {
         return res.status(400).json({ message: "Attendance not found" });
     }
-    const enterTime = DateTime.fromMillis(attendance.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('HH:mm');
-    const shiftEndTime = DateTime.fromJSDate(attendance.shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('HH:mm');
-    if(!isWithinTimeRange(enterTime,shiftEndTime,checkOutTime)){
-        return res.status(400).json({ message: "Check out time must be in the range",enterTime,shiftEndTime,checkOutTime });
-    }
-    const checkOutDate = getCheckOutDate(shiftEndTime, attendance.shiftEndDateTime, checkOutTime);
-    attendance.leaveTime = checkOutDate.toMillis();
-    await attendance.save();
-    return res.json({ enterTime, shiftEndTime, checkOutTime, shiftEndDateTime: attendance.shiftEndDateTime, checkOutDate });
-    if(!isWithinTimeRange(attendance.enterTime , attendance.shiftEndDateTime, checkOutTime))
-
     if (attendance.isCheckOut) {
         return res.status(409).json({ message: "This attendace is already checked out, rejected" });
     }
-    if (leaveTime > attendance.shiftEndDateTime) {
-        return res.status(409).json({ message: "It's not allowed to check out after this employee shift end" });
+    const enterTimeHours = DateTime.fromMillis(attendance.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('HH:mm');
+    const shiftEndTime = DateTime.fromJSDate(attendance.shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('HH:mm');
+    if (!isWithinTimeRange(enterTimeHours, shiftEndTime, checkOutTime)) {
+        return res.status(400).json({ 
+            message: `Check out time must be between enterTime (${convertToAMPM(enterTimeHours)}) ,
+            and shiftEndTime (${convertToAMPM(shiftEndTime)}), Rejected`
+        });
     }
-    attendance.leaveTime = leaveTime.getTime();
+    const checkOutDate = getCheckOutDate(shiftEndTime, attendance.shiftEndDateTime, checkOutTime);
+    attendance.leaveTime = checkOutDate.toMillis();
     attendance.isCheckOut = true;
     attendance.shiftEndDateTime = undefined;
     await attendance.save();
-    return res.status(201).json({ message: "The check-out done successfully ", attendance });
+
+    return res.status(201).json({ message: `The check-out done successfully at ${convertToAMPM(checkOutTime)}`, attendance });
 }
 
 export const getEmployees = async (req, res) => {
