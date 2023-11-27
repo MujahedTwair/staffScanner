@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import { DateTime, Zone } from 'luxon';
+import { DateTime } from 'luxon';
 import QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
@@ -180,8 +180,8 @@ export const solveCheckOut = async (req, res) => {
     const shiftEndTime = DateTime.fromJSDate(attendance.shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('HH:mm');
     if (!isWithinTimeRange(enterTimeHours, shiftEndTime, checkOutTime)) {
         return res.status(400).json({ 
-            message: `Check out time must be between enterTime (${convertToAMPM(enterTimeHours)}) ,
-            and shiftEndTime (${convertToAMPM(shiftEndTime)}), Rejected`
+            message: `Check out time must be between enterTime (${convertToAMPM(enterTimeHours)}), `+
+            `and shiftEndTime (${convertToAMPM(shiftEndTime)}), Rejected`
         });
     }
     const checkOutDate = getCheckOutDate(shiftEndTime, attendance.shiftEndDateTime, checkOutTime);
