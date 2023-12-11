@@ -39,9 +39,9 @@ export const reportsSchema = {
         })
     }).custom((value, helpers) => {
         if (value && value.startDuration && value.endDuration) {
-            const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').toMillis();
-            const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').toMillis();
-            const now = DateTime.now().startOf('day').setZone('Asia/Jerusalem').toMillis();
+            const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').startOf('day').toMillis();
+            const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').startOf('day').toMillis();
+            const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day').toMillis();
             if (startDuration && endDuration && now >= endDuration && endDuration >= startDuration) {
                 return value;
             } else {
