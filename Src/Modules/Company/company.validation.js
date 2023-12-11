@@ -89,8 +89,8 @@ export const allReportsSchema = {
         })
     }).custom((value, helpers) => {
         if (value && value.startDuration && value.endDuration) {
-            const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').toMillis();
-            const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').toMillis();
+            const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').startOf('day').toMillis();
+            const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').startOf('day').toMillis();
             const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day').toMillis();
             console.log({ startDuration, endDuration, now });
             if (startDuration && endDuration && now >= endDuration && endDuration >= startDuration) {
