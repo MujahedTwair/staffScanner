@@ -1,9 +1,14 @@
 import Excel from 'exceljs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export const printExcel = async (data, res) => {
-    
     const workbook = new Excel.Workbook();
-    await workbook.xlsx.readFile('./Template/report.xlsx');
+    const filePath = join(__dirname, '../../Template/report.xlsx');
+    console.log(filePath);
+    await workbook.xlsx.readFile(filePath);
     const mainWorksheet = workbook.getWorksheet('Correct') || workbook.addWorksheet('Correct');
     let notCorrectChecksWorksheet = workbook.getWorksheet('Not Correct');
     if (!notCorrectChecksWorksheet) {
@@ -14,8 +19,8 @@ export const printExcel = async (data, res) => {
     mainWorksheet.getCell('C7').value = data.startDuration;
     mainWorksheet.getCell('C8').value = data.endDuration;
     mainWorksheet.getCell('C9').value = data.totalHours;
-    
-    let daysRow = 13; 
+
+    let daysRow = 13;
     data.days.forEach(day => {
         copyRowStyle(daysRow, daysRow + 1, mainWorksheet);
         mainWorksheet.getCell(`B${daysRow}`).value = day.day;
@@ -24,7 +29,7 @@ export const printExcel = async (data, res) => {
         mainWorksheet.getCell(`E${daysRow}`).value = day.hours;
         daysRow++;
     });
-    let notCorrectChecksRow = 4; 
+    let notCorrectChecksRow = 4;
     data.notCorrectChecks.forEach(check => {
         copyRowStyle(notCorrectChecksRow, notCorrectChecksRow + 1, notCorrectChecksWorksheet);
         notCorrectChecksWorksheet.getCell(`B${notCorrectChecksRow}`).value = check.day;
@@ -40,7 +45,7 @@ export const printExcel = async (data, res) => {
     res.setHeader('Content-Disposition', `attachment; filename=${data.fullName}-report.xlsx`);
     // Send the buffer in the response
     return res.send(buffer);
-    
+
 }
 
 async function copyRowStyle(sourceRowNum, targetRowNum, worksheet) {
