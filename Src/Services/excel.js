@@ -1,5 +1,4 @@
-import Excel from 'exceljs'
-
+import Excel from 'exceljs';
 
 export const printExcel = async (data, res) => {
     

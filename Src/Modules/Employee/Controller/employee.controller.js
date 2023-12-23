@@ -203,7 +203,7 @@ export const reports = async (req, res) => {
     const hours = calculateHours(allMilliSeconds);
     const { userName, fullName } =  employee ;
 
-    if (excel == true) {
+    if (excel == 'true') {
         return await printExcel({
             userName,
             fullName,
