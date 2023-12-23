@@ -5,6 +5,7 @@ import companyModel from "../../../../DB/Models/Company.model.js";
 import { addCheckIn, calculateHours, convertToAMPM, defulatDuration, isWithinTimeRange } from '../../../Services/service.controller.js';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 import holidayModel from '../../../../DB/Models/Hoilday.model.js';
+import { printExcel } from '../../../Services/excel.js';
 
 
 export const checkIn = async (req, res) => {
@@ -159,9 +160,9 @@ export const updatePassword = async (req, res) => {
 
 export const reports = async (req, res) => {
     const { _id } = req.user;
-    let { startDuration, endDuration } = req.query;
+    let { startDuration, endDuration, excel } = req.query;
     ({ startDuration, endDuration } = defulatDuration(startDuration, endDuration));
-    
+
     const employee = await employeeModel.findOne({ _id, isDeleted: false, })
         .populate({
             path: 'attendance',
@@ -194,13 +195,25 @@ export const reports = async (req, res) => {
             notCorrectChecks.push({ day, enterTime, shiftEnd, attendaceId, enterTimestamp: element.enterTime });
         }
     }
-   
+
     days = [...days].sort((a, b) => a.enterTimestamp - b.enterTimestamp);
     days.forEach(ele => delete ele.enterTimestamp);
     notCorrectChecks = [...notCorrectChecks].sort((a, b) => a.enterTimestamp - b.enterTimestamp);
     notCorrectChecks.forEach(ele => delete ele.enterTimestamp);
     const hours = calculateHours(allMilliSeconds);
-    const {userName, fullName} = req.role == 'company' ? employee : '';
+    const { userName, fullName } =  employee ;
+
+    if (excel) {
+        return await printExcel({
+            userName,
+            fullName,
+            days,
+            totalHours: hours,
+            notCorrectChecks,
+            startDuration: startDuration.toFormat('d/M/yyyy'),
+            endDuration: endDuration.toFormat('d/M/yyyy'),
+        }, res);
+    }
     return res.status(200).json({
         message: "success",
         userName,
@@ -210,7 +223,6 @@ export const reports = async (req, res) => {
         notCorrectChecks,
         startDuration: startDuration.toFormat('d/M/yyyy'),
         endDuration: endDuration.toFormat('d/M/yyyy'),
-        allMilliSeconds
     });
 }
 

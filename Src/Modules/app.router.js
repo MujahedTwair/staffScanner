@@ -8,7 +8,9 @@ import cors from 'cors';
 const initApp = (app, express) => {
     connectDb();
 
-    app.use(cors());
+    app.use(cors({
+        exposedHeaders: ['Content-Disposition'],
+    }));
     app.use(express.json());
     app.use('/auth', authRouter);
     app.use('/company', companyRouter);
@@ -18,4 +20,4 @@ const initApp = (app, express) => {
     app.use('*', (req, res) => res.json({ message: "Page not found, تأكد من نوع الميثود طنيبك" }));
 }
 
-export default initApp
+export default initApp;

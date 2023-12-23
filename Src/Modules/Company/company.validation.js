@@ -108,7 +108,8 @@ export const reportSchema = {
             is: joi.exist(),
             then: joi.required(),
             otherwise: joi.forbidden()
-        })
+        }),
+        excel: joi.boolean()
     }).custom((value, helpers) => {
         if (value && value.startDuration && value.endDuration) {
             const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').startOf('day').toMillis();
