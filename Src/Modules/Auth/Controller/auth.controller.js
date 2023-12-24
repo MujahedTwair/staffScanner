@@ -25,7 +25,7 @@ export const signinEmpolyee = async (req, res) => {
     const { userName, password, deviceId } = req.body;
     const employee = await employeeModel.findOne({ userName, isDeleted: false });
     if (!employee) {
-        return res.status(404).json({ message: "invaild userName" });
+        return res.status(404).json({ message: "invaild username" });
     }
     const match = bcrypt.compareSync(password, employee.password);
     if (!match) {

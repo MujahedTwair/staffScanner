@@ -1,4 +1,5 @@
 import mongoose, { Schema,Types,model } from "mongoose";
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 const attendanceSchema = new Schema({
 
@@ -27,6 +28,9 @@ const attendanceSchema = new Schema({
 },{
     timestamps:true,
 });
+
+attendanceSchema.plugin(mongoosePaginate);
+
 
 const attendanceModel = mongoose.models.Attendance || model('Attendance', attendanceSchema);
 

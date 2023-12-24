@@ -2,9 +2,10 @@ import { DateTime } from 'luxon';
 import bcrypt from 'bcryptjs';
 import attendanceModel from "../../../../DB/Models/Attendance.model.js";
 import companyModel from "../../../../DB/Models/Company.model.js";
-import { addCheckIn, isWithinTimeRange } from '../../../Services/service.controller.js';
+import { addCheckIn, calculateHours, convertToAMPM, defulatDuration, isWithinTimeRange } from '../../../Services/service.controller.js';
 import employeeModel from '../../../../DB/Models/Employee.model.js';
 import holidayModel from '../../../../DB/Models/Hoilday.model.js';
+import { printExcel } from '../../../Services/excel.js';
 
 
 export const checkIn = async (req, res) => {
@@ -19,21 +20,28 @@ export const checkIn = async (req, res) => {
 
     const { _id, startChecking, endChecking } = employee;
     const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
+
     if (!isWithinTimeRange(startChecking, endChecking, currentTime)) {
         return res.status(409).json({ message: "you are out of range checking, rejected", startChecking, endChecking, currentTime });
     }
 
     const lastCheckIn = await attendanceModel.findOne({ employeeId: _id }).sort({ createdAt: -1 });
     if (!lastCheckIn) {
-        return await addCheckIn(employee, res);
-    } else if (lastCheckIn.isCheckIn && !lastCheckIn.isCheckOut) {
+        return await addCheckIn(employee, currentTime, res);
+    } else if (!lastCheckIn.isCheckOut) {
         if (new Date() <= lastCheckIn.shiftEndDateTime) {
             return res.status(409).json({ message: "you are already checked in, if you want to check out go to checkOut button" });
         } else {
-            return await addCheckIn(employee, res);
+            return await addCheckIn(employee, currentTime, res);
         }
-    } else if (lastCheckIn.isCheckIn && lastCheckIn.isCheckOut) {
-        return await addCheckIn(employee, res);
+    } else if (lastCheckIn.isCheckOut) {
+        const lastDayChecked = DateTime.fromJSDate(lastCheckIn.createdAt, { zone: 'Asia/Jerusalem' }).toISODate();
+        const thisDay = DateTime.now().setZone('Asia/Jerusalem').toISODate();
+        if (lastDayChecked == thisDay) {
+            return res.status(404).json({ message: "Not allowed more than one check-in per day" });
+        } else {
+            return await addCheckIn(employee, currentTime, res);
+        }
     }
     return res.status(201).json({ message: "Nothing allowed to you, maybe something wrong, rejected" });
 
@@ -56,9 +64,9 @@ export const checkOut = async (req, res) => {
 
     const lastCheckIn = await attendanceModel.findOne({ employeeId: _id }).sort({ createdAt: -1 });
     // console.log(lastCheckIn);
-    if (!lastCheckIn || (lastCheckIn.isCheckIn && lastCheckIn.isCheckOut)) {
+    if (!lastCheckIn || lastCheckIn.isCheckOut) {
         return res.status(409).json({ message: "you are not checked in yet, if you want to check in go to checkIn button" });
-    } else if (lastCheckIn.isCheckIn && !lastCheckIn.isCheckOut) {
+    } else if (!lastCheckIn.isCheckOut) {
 
         const { shiftEndDateTime } = lastCheckIn;
 
@@ -95,14 +103,20 @@ export const getAllowedCheck = async (req, res) => {
     const lastCheckIn = await attendanceModel.findOne({ employeeId: _id }).sort({ createdAt: -1 });
     if (!lastCheckIn) {
         return res.status(201).json({ message: "checkIn" });
-    } else if (lastCheckIn.isCheckIn && !lastCheckIn.isCheckOut) {
+    } else if (!lastCheckIn.isCheckOut) {
         if (new Date() <= lastCheckIn.shiftEndDateTime) {
             return res.status(201).json({ message: "checkOut" });
         } else {
             return res.status(201).json({ message: "checkIn" });
         }
-    } else if (lastCheckIn.isCheckIn && lastCheckIn.isCheckOut) {
-        return res.status(201).json({ message: "checkIn" });
+    } else if (lastCheckIn.isCheckOut) {
+        const lastDayChecked = DateTime.fromJSDate(lastCheckIn.createdAt, { zone: 'Asia/Jerusalem' }).toISODate();
+        const thisDay = DateTime.now().setZone('Asia/Jerusalem').toISODate();
+        if (lastDayChecked == thisDay) {
+            return res.status(404).json({ message: "Not allowed more than one check per day" });
+        } else {
+            return res.status(201).json({ message: "checkIn" });
+        }
     }
     return res.status(201).json({ message: "Nothing allowed to you, maybe something wrong" });
 }
@@ -144,14 +158,72 @@ export const updatePassword = async (req, res) => {
     return res.status(201).json({ message: "Password updated successfully" });
 }
 
+export const reports = async (req, res) => {
+    const { _id } = req.user;
+    let { startDuration, endDuration, excel } = req.query;
+    ({ startDuration, endDuration } = defulatDuration(startDuration, endDuration));
 
-function convertToAMPM(timeString) {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    const period = hours < 12 ? 'Am' : 'Pm';
-    const formattedHours = hours % 12 || 12;
-    const formattedTime = `${formattedHours}:${minutes} ${period}`;
+    const employee = await employeeModel.findOne({ _id, isDeleted: false, })
+        .populate({
+            path: 'attendance',
+            match: {
+                createdAt: {
+                    $gte: startDuration,
+                    $lte: endDuration,
+                },
+            },
+        });
+    let allMilliSeconds = 0;
+    let days = [];
+    let notCorrectChecks = [];
+    const { attendance } = employee;
+    for (const element of attendance) {
+        if (element.leaveTime) {
+            const milliseconds = element.leaveTime - element.enterTime;
+            const hours = calculateHours(milliseconds);
+            const day = DateTime.fromJSDate(element.createdAt, { zone: "Asia/Jerusalem" }).toFormat('d/M/yyyy');
+            const enterTime = DateTime.fromMillis(element.enterTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
+            const leaveTime = DateTime.fromMillis(element.leaveTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
+            days.push({ day, enterTime, leaveTime, hours, enterTimestamp: element.enterTime });
+            allMilliSeconds += milliseconds;
 
-    return formattedTime;
+        } else {
+            const day = DateTime.fromJSDate(element.createdAt, { zone: "Asia/Jerusalem" }).toFormat('d/M/yyyy');
+            const enterTime = DateTime.fromMillis(element.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('h:mm a, d/M/yyyy');
+            const shiftEnd = DateTime.fromJSDate(element.shiftEndDateTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
+            const attendaceId = req.role == 'company' ? element.id : undefined;
+            notCorrectChecks.push({ day, enterTime, shiftEnd, attendaceId, enterTimestamp: element.enterTime });
+        }
+    }
+
+    days = [...days].sort((a, b) => a.enterTimestamp - b.enterTimestamp);
+    days.forEach(ele => delete ele.enterTimestamp);
+    notCorrectChecks = [...notCorrectChecks].sort((a, b) => a.enterTimestamp - b.enterTimestamp);
+    notCorrectChecks.forEach(ele => delete ele.enterTimestamp);
+    const hours = calculateHours(allMilliSeconds);
+    const { userName, fullName } =  employee ;
+
+    if (excel == 'true') {
+        return await printExcel({
+            userName,
+            fullName,
+            days,
+            totalHours: hours,
+            notCorrectChecks,
+            startDuration: startDuration.toFormat('d/M/yyyy'),
+            endDuration: endDuration.toFormat('d/M/yyyy'),
+        }, res);
+    }
+    return res.status(200).json({
+        message: "success",
+        userName,
+        fullName,
+        days,
+        totalHours: hours,
+        notCorrectChecks,
+        startDuration: startDuration.toFormat('d/M/yyyy'),
+        endDuration: endDuration.toFormat('d/M/yyyy'),
+    });
 }
 
 const checkDeviceId = async (employee, deviceId, res) => {
@@ -161,7 +233,7 @@ const checkDeviceId = async (employee, deviceId, res) => {
 }
 
 const checkIPAddress = async (employee, IPAddress, res) => {
-    
+
     const company = await companyModel.findById(employee.companyId);
     if (IPAddress != company.IPAddress) {
         return res.status(409).json({ message: "illegal attemp: Your not at company, rejected" });

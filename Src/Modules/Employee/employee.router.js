@@ -21,4 +21,6 @@ app.patch('/checkOutQR', authEmployee, validation(validationSchema.scanQRSchema)
 
 app.get('/ip', asyncHandler(employeeController.getIpAddress));
 
+app.get('/reports', authEmployee, validation(validationSchema.reportsSchema), asyncHandler(employeeController.reports));
+
 export default app;
