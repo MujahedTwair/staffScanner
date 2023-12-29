@@ -1,4 +1,4 @@
-import { DateTime, Duration, Zone } from "luxon";
+import { DateTime, Duration } from "luxon";
 import attendanceModel from "../../DB/Models/Attendance.model.js";
 
 export const getShiftEndDateTime = (startCheckingTime, endCheckingTime, currentTime) => {
@@ -43,11 +43,11 @@ export const isWithinTimeRange = (start, end, current) => {
 }
 
 export const getPagination = (page, size) => {
-    const limit = size ? +size : 3;
-    const offset = page ? (page - 1) * limit : 0;
+    const limit = size > 0 ? +size : 3;
+    const offset = page > 0 ? (page - 1) * limit : 0;
 
     return { limit, offset };
-};
+}
 
 export const calculateHours = (milliseconds) => {
     const duration = Duration.fromObject({ milliseconds });

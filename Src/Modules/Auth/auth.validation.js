@@ -1,4 +1,4 @@
-import joi from 'joi'
+import joi from "joi";
 
 
 export const signinCompanySchema = {
@@ -13,8 +13,7 @@ export const signinCompanySchema = {
         })
     })
 
-};
-
+}
 
 export const signinEmployeeSchema = {
     body: joi.object({
@@ -30,12 +29,9 @@ export const signinEmployeeSchema = {
     })
 }
 
-
-
 export const testSchema = {
     query: joi.object({
         page: joi.number().min(1),
         perPage: joi.number().min(3).max(20)
     })
-
-};
+}
