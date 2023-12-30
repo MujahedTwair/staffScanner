@@ -127,8 +127,8 @@ export const allReportsComp = async (req, res) => {
     return res.status(201).json({
         message: "success",
         employees: mappedEmployees,
-        startDuration,
-        endDuration,
+        startDuration: startDuration.toFormat('d/M/yyyy'),
+        endDuration: endDuration.toFormat('d/M/yyyy'),
         page: employees.page,
         totalPages: employees.totalPages,
         totalEmployees: employees.totalDocs
