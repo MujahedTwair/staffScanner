@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import employeeModel from "../../../DB/Models/Employee.model.js";
-import { calculateHours, defulatDuration, getCheckOutDate } from "../../Services/service.controller.js";
+import { calculateHours, defulatDuration, getCheckOutDate, getPagination } from "../../Services/service.controller.js";
 import { printExcel } from "../../Services/excel.js";
 import attendanceModel from "../../../DB/Models/Attendance.model.js";
 
