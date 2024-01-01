@@ -22,11 +22,7 @@ export const reviewVacations = async (req, res) => {
             limit,
             offset,
             sort: { createdAt: -1 },
-            select: '_id startDate endDate type paid reason companyNote status isDeleted isRead',
-            populate: {
-                path: 'employeeId',
-                select: ' -_id userName'
-            }
+            select: '_id startDate endDate type paid reason companyNote status isDeleted isRead'
         })
 
     if (!vacations.totalDocs) {
