@@ -59,7 +59,8 @@ export const deleteEmployeeSchema = {
 export const getEmployeesSchema = {
     query: joi.object({
         page: joi.number().min(1),
-        perPage: joi.number().min(3).max(20)
+        perPage: joi.number().min(3).max(20),
+        search: joi.string().max(50)
     })
 }
 

@@ -168,11 +168,18 @@ export const checkOutEmployee = async (req, res) => {
 }
 
 export const getEmployees = async (req, res) => {
-    const { page, perPage } = req.query;
+    const { page, perPage, search } = req.query;
     const { limit, offset } = getPagination(page, perPage);
     const companyId = req.user.id;
-
-    const employees = await employeeModel.paginate({ companyId, isDeleted: false }, { select: 'fullName _id userName', limit, offset });
+    let mongooseQuery = employeeModel.paginate({ companyId, isDeleted: false }, { select: 'fullName _id userName', limit, offset });
+    if (search) {
+        mongooseQuery = employeeModel.paginate({
+            companyId, isDeleted: false,
+            $or: [{ fullName: { $regex: search, $options: 'i' } }, { userName: { $regex: search, $options: 'i' } }]
+        },
+            { select: 'fullName _id userName', limit, offset });
+    }
+    const employees = await mongooseQuery;
     if (!employees.totalDocs) {
         return res.status(400).json({ message: "Employees not found" });
     }

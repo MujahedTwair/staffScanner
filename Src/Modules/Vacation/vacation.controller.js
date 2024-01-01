@@ -5,12 +5,13 @@ import { getPagination } from "../../Services/service.controller.js";
 
 export const requestVacation = async (req, res) => {
     const { startDate, endDate, type, paid, reason } = req.body;
-    const vacation = await vacationModel.create({ employeeId: req.user._id, startDate, endDate, type, paid, reason });
-    if (!vacation) {
-        return res.status(400).json({ message: "Vacation not create" });
+    const vacation = await vacationModel.findOne({ employeeId: req.user._id, startDate, endDate, type, paid, reason });
+    if (vacation) {
+        return res.status(409).json({ message: "Duplicate vacation, Rejected" });
     }
+    await vacationModel.create({ employeeId: req.user._id, startDate, endDate, type, paid, reason });
 
-    return res.status(200).json({ message: "Vacation created successfully" });
+    return res.status(201).json({ message: "Vacation created successfully" });
 }
 
 export const reviewVacations = async (req, res) => {
