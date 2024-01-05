@@ -181,10 +181,10 @@ export const getEmployees = async (req, res) => {
     }
     const employees = await mongooseQuery;
     if (!employees.totalDocs) {
-        return res.status(400).json({ message: "Employees not found" });
+        return res.status(409).json({ message: "Employees not found" });
     }
 
-    return res.status(201).json({
+    return res.status(200).json({
         message: "success",
         employees: employees.docs,
         page: employees.page,

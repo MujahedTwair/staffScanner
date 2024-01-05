@@ -1,5 +1,4 @@
 import vacationModel from "../../../DB/Models/Vacation.model.js";
-import jwt from "jsonwebtoken";
 import { getPagination } from "../../Services/service.controller.js";
 
 
@@ -65,13 +64,9 @@ export const viewVacation = async (req, res) => {
         return res.status(404).json({ message: 'No vacation found ' });
     }
 
-    const allVacations = vacations.docs.map((ele) => {
-        const hashed_id = jwt.sign({ id: ele._id }, process.env.VACATION);
-        return { ...ele.toObject(), _id: hashed_id };
-    });
     return res.status(200).json({
         message: "success",
-        allVacations,
+        allVacations: vacations.docs,
         page: vacations.page,
         totalPages: vacations.totalPages,
         totalVacations: vacations.totalDocs
@@ -95,13 +90,10 @@ export const viewArchiveVacation = async (req, res) => {
     if (!vacations.totalDocs) {
         return res.status(404).json({ message: 'No vacation found ' });
     }
-    const allVacations = vacations.docs.map((ele) => {
-        const hashed_id = jwt.sign({ id: ele._id }, process.env.VACATION);
-        return { ...ele.toObject(), _id: hashed_id };
-    });
+
     return res.status(200).json({
         message: "success",
-        allVacations,
+        allVacations: vacations.docs,
         page: vacations.page,
         totalPages: vacations.totalPages,
         totalVacations: vacations.totalDocs
@@ -111,8 +103,7 @@ export const viewArchiveVacation = async (req, res) => {
 
 export const approveVacation = async (req, res) => {
     const { status, companyNote } = req.body;
-    const { hashed_id } = req.params;
-    const { id } = jwt.verify(hashed_id, process.env.VACATION);
+    const { id } = req.params;
     const vacation = await vacationModel.findByIdAndUpdate({ _id: id }, { status, companyNote }, { new: true })
         .select('-_id startDate endDate type paid reason status companyNote')
         .populate({

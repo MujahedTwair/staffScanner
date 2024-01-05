@@ -14,6 +14,6 @@ app.get('/vacationTypes', authEmployee, asyncHandler(vacationController.getVacat
 
 app.get('/viewVacation', authCompany, validation(validators.pageVacationSchema), asyncHandler(vacationController.viewVacation));
 app.get('/viewArchiveVacation', authCompany, validation(validators.pageVacationSchema), asyncHandler(vacationController.viewArchiveVacation));
-app.patch('/approveVacation/:hashed_id', authCompany, validation(validators.approveVacationSchema), asyncHandler(vacationController.approveVacation));
+app.patch('/approveVacation/:id', authCompany, validation(validators.approveVacationSchema), asyncHandler(vacationController.approveVacation));
 
 export default app;

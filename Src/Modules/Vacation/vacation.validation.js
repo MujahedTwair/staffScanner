@@ -5,7 +5,7 @@ export const requestVacationSchema = {
   body: joi.object({
     startDate: joi.string().required(),
     endDate: joi.string().required(),
-    type: joi.string().valid('Sick', 'Vacation', 'Travelling').required(),
+    type: joi.string().valid('Sick', 'Annual', 'Travelling').required(),
     paid: joi.boolean().required(),
     reason: joi.string(),
   }).custom((value, helpers) => {
@@ -26,7 +26,7 @@ export const approveVacationSchema = {
     companyNote: joi.string().optional()
   }),
   params: joi.object({
-    hashed_id: joi.string().required(),
+    id: joi.string().required(),
   }),
 }
 
