@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import employeeModel from "../../../DB/Models/Employee.model.js";
-import { calculateHours, defulatDuration, getCheckOutDate, getPagination } from "../../Services/service.controller.js";
+import { calculateHours, defulatDuration, getCheckOutDate, getPagination, isWithinTimeRange } from "../../Services/service.controller.js";
 import { printExcel } from "../../Services/excel.js";
 import attendanceModel from "../../../DB/Models/Attendance.model.js";
 
@@ -150,7 +150,7 @@ export const solveCheckOut = async (req, res) => {
     const { attendanceId, checkOutTime } = req.body;
     const attendance = await attendanceModel.findById(attendanceId);
     if (!attendance) {
-        return res.status(400).json({ message: "Attendance not found" });
+        return res.status(404).json({ message: "Attendance not found" });
     }
     if (attendance.isCheckOut) {
         return res.status(409).json({ message: "This attendace is already checked out, rejected" });
