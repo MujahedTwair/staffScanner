@@ -7,7 +7,7 @@ const __dirname = dirname(__filename);
 export const printExcel = async (data, res) => {
     const workbook = new Excel.Workbook();
     const filePath = join(__dirname, '../../Template/report.xlsx');
-    console.log(filePath);
+    // console.log(filePath);
     await workbook.xlsx.readFile(filePath);
     const mainWorksheet = workbook.getWorksheet('Correct') || workbook.addWorksheet('Correct');
     let notCorrectChecksWorksheet = workbook.getWorksheet('Not Correct');

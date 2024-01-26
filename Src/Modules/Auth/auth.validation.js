@@ -8,7 +8,7 @@ export const signinCompanySchema = {
             'string.email': "plz enter valid email"
         }),
 
-        password: joi.string().required().min(3).max(20).messages({
+        password: joi.string().required().min(6).max(20).messages({
             'string.empty': "password is required"
         })
     })

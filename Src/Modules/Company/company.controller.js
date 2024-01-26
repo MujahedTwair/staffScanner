@@ -197,6 +197,24 @@ export const getEmployees = async (req, res) => {
 export const updateEmployee = async (req, res) => {
     const { employeeId } = req.params;
     const { password, ...updatedData } = req.body;
+    if(updatedData.email || updatedData.phoneNumber){
+        const employee = await employeeModel.findOne({
+            $or: [
+                { email: updatedData.email },
+                { phoneNumber: updatedData.phoneNumber }
+            ],
+            _id: { $ne: employeeId } // Exclude the current employee from the search
+        });
+    
+        if (employee) {
+            const message =
+                employee.email === updatedData.email ? "Email already used" :
+                        employee.phoneNumber === updatedData.phoneNumber ? "Phone Number already used" :
+                            "";
+    
+            return res.status(409).json({ message });
+        }
+    }
     if (password) {
         const hashNewPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUND));
         updatedData.password = hashNewPassword;
