@@ -73,8 +73,8 @@ export const getActiveEmployee = async (req, res) => {
             fullName: employee.fullName,
             userName: employee.userName,
             phoneNumber: employee.phoneNumber,
-            enterTime: DateTime.fromMillis(employee.attendance[0].enterTime, { zone: 'Asia/Jerusalem' }).toFormat('d/M/yyyy, h:mm a'),
-            shiftEndDateTime: DateTime.fromJSDate(employee.attendance[0].shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('d/M/yyyy, h:mm a')
+            enterTime: DateTime.fromMillis(employee.attendance[0].enterTime, { zone: process.env.Time_Zone }).toFormat('d/M/yyyy, h:mm a'),
+            shiftEndDateTime: DateTime.fromJSDate(employee.attendance[0].shiftEndDateTime, { zone: process.env.Time_Zone }).toFormat('d/M/yyyy, h:mm a')
         }));
     if (activeEmployees.length == 0) {
         return res.status(202).json({ message: "There are no active employees right now" });
@@ -105,7 +105,7 @@ export const checkInEmployee = async (req, res) => {
     const { employeeId } = req.body;
     const employee = await employeeModel.findOne({ _id: employeeId, companyId: company._id, isDeleted: false });
     const { startChecking, endChecking } = employee;
-    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: process.env.Time_Zone });
     if (!isWithinTimeRange(startChecking, endChecking, currentTime)) {
         return res.status(409).json({ message: `The employee ${employee.fullName} out of range checking, rejected`, startChecking, endChecking, currentTime });
     }
@@ -119,8 +119,8 @@ export const checkInEmployee = async (req, res) => {
             return await addCheckIn(employee, currentTime, res);
         }
     } else if (lastCheckIn.isCheckOut) {
-        const lastDayChecked = DateTime.fromJSDate(lastCheckIn.createdAt, { zone: 'Asia/Jerusalem' }).toISODate();
-        const thisDay = DateTime.now().setZone('Asia/Jerusalem').toISODate();
+        const lastDayChecked = DateTime.fromJSDate(lastCheckIn.createdAt, { zone: process.env.Time_Zone }).toISODate();
+        const thisDay = DateTime.now().setZone(process.env.Time_Zone).toISODate();
         if (lastDayChecked == thisDay) {
             return res.status(404).json({ message: "Not allowed more than one check-in per day" });
         } else {
@@ -136,7 +136,7 @@ export const checkOutEmployee = async (req, res) => {
     const { employeeId } = req.body;
     const employee = await employeeModel.findOne({ _id: employeeId, companyId: company._id, isDeleted: false });
     const { startChecking, endChecking } = employee;
-    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jerusalem' });
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: process.env.Time_Zone });
 
 
     if (!(isWithinTimeRange(startChecking, endChecking, currentTime))) {

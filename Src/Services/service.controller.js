@@ -15,7 +15,7 @@ export const getShiftEndDateTime = (startCheckingTime, endCheckingTime, currentT
 export const getCheckOutDate = (shiftEndTime , shiftEndDateTime, checkOutTime)=>{
     const [outHours, outMinutes] = checkOutTime.split(':').map(ele => +ele);
     const [endHours, endMinutes] = shiftEndTime.split(':').map(ele => +ele);
-    const checkOutDate = DateTime.fromJSDate(shiftEndDateTime, { zone: 'Asia/Jerusalem' })
+    const checkOutDate = DateTime.fromJSDate(shiftEndDateTime, { zone: process.env.Time_Zone })
         .minus({ hours: minusHour(endHours, outHours), minutes: (endMinutes - outMinutes) });
     return checkOutDate;
 }
@@ -57,11 +57,11 @@ export const calculateHours = (milliseconds) => {
 
 export const defulatDuration = (startDuration, endDuration) => {
     if (startDuration && endDuration) {
-        startDuration = DateTime.fromFormat(startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').startOf('day');
-        endDuration = DateTime.fromFormat(endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').endOf('day');
+        startDuration = DateTime.fromFormat(startDuration, 'd/M/yyyy').setZone(process.env.Time_Zone).startOf('day');
+        endDuration = DateTime.fromFormat(endDuration, 'd/M/yyyy').setZone(process.env.Time_Zone).endOf('day');
     } else {
-        startDuration = DateTime.now().setZone('Asia/Jerusalem').startOf('month');
-        endDuration = DateTime.now().setZone('Asia/Jerusalem').endOf('day');
+        startDuration = DateTime.now().setZone(process.env.Time_Zone).startOf('month');
+        endDuration = DateTime.now().setZone(process.env.Time_Zone).endOf('day');
     }
     return { startDuration, endDuration };
 }

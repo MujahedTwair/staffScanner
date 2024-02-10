@@ -19,7 +19,7 @@ const initApp = (app, express) => {
     app.use('/vacation', vacationRouter);
     app.use('/attendance', attendaceRouter);
     app.get('/', (req, res) => res.json({ message: "Welcome to Dashboard" }));
-    app.use('*', (req, res) => res.json({ message: "Page not found, تأكد من نوع الميثود طنيبك" }));
+    app.use('*', (req, res) => res.json({ message: "Page Not Found" }));
 }
 
 export default initApp;

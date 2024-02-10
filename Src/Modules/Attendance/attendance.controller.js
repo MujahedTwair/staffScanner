@@ -27,16 +27,16 @@ export const reportEmp = async (req, res) => {
         if (element.leaveTime) {
             const milliseconds = element.leaveTime - element.enterTime;
             const hours = calculateHours(milliseconds);
-            const day = DateTime.fromJSDate(element.createdAt, { zone: "Asia/Jerusalem" }).toFormat('d/M/yyyy');
-            const enterTime = DateTime.fromMillis(element.enterTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
-            const leaveTime = DateTime.fromMillis(element.leaveTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
+            const day = DateTime.fromJSDate(element.createdAt, { zone: process.env.Time_Zone }).toFormat('d/M/yyyy');
+            const enterTime = DateTime.fromMillis(element.enterTime, { zone: process.env.Time_Zone }).toFormat('h:mm a, d/M/yyyy');
+            const leaveTime = DateTime.fromMillis(element.leaveTime, { zone: process.env.Time_Zone }).toFormat('h:mm a, d/M/yyyy');
             days.push({ day, enterTime, leaveTime, hours, enterTimestamp: element.enterTime });
             allMilliSeconds += milliseconds;
 
         } else {
-            const day = DateTime.fromJSDate(element.createdAt, { zone: "Asia/Jerusalem" }).toFormat('d/M/yyyy');
-            const enterTime = DateTime.fromMillis(element.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('h:mm a, d/M/yyyy');
-            const shiftEnd = DateTime.fromJSDate(element.shiftEndDateTime, { zone: "Asia/Jerusalem" }).toFormat('h:mm a, d/M/yyyy');
+            const day = DateTime.fromJSDate(element.createdAt, { zone: process.env.Time_Zone }).toFormat('d/M/yyyy');
+            const enterTime = DateTime.fromMillis(element.enterTime, { zone: process.env.Time_Zone }).toFormat('h:mm a, d/M/yyyy');
+            const shiftEnd = DateTime.fromJSDate(element.shiftEndDateTime, { zone: process.env.Time_Zone }).toFormat('h:mm a, d/M/yyyy');
             const attendaceId = req.role == 'company' ? element.id : undefined;
             notCorrectChecks.push({ day, enterTime, shiftEnd, attendaceId, enterTimestamp: element.enterTime });
         }
@@ -155,8 +155,8 @@ export const solveCheckOut = async (req, res) => {
     if (attendance.isCheckOut) {
         return res.status(409).json({ message: "This attendace is already checked out, rejected" });
     }
-    const enterTimeHours = DateTime.fromMillis(attendance.enterTime, { zone: 'Asia/Jerusalem' }).toFormat('HH:mm');
-    const shiftEndTime = DateTime.fromJSDate(attendance.shiftEndDateTime, { zone: 'Asia/Jerusalem' }).toFormat('HH:mm');
+    const enterTimeHours = DateTime.fromMillis(attendance.enterTime, { zone: process.env.Time_Zone }).toFormat('HH:mm');
+    const shiftEndTime = DateTime.fromJSDate(attendance.shiftEndDateTime, { zone: process.env.Time_Zone }).toFormat('HH:mm');
     if (!isWithinTimeRange(enterTimeHours, shiftEndTime, checkOutTime)) {
         return res.status(400).json({
             message: `Check out time must be between enterTime (${convertToAMPM(enterTimeHours)}), ` +

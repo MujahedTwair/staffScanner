@@ -3,9 +3,9 @@ import { DateTime } from "luxon";
 
 const dateValidation = (value, helpers) => {
     if (value && value.startDuration && value.endDuration) {
-        const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').startOf('day').toMillis();
-        const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone('Asia/Jerusalem').startOf('day').toMillis();
-        const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day').toMillis();
+        const startDuration = DateTime.fromFormat(value.startDuration, 'd/M/yyyy').setZone(process.env.Time_Zone).startOf('day').toMillis();
+        const endDuration = DateTime.fromFormat(value.endDuration, 'd/M/yyyy').setZone(process.env.Time_Zone).startOf('day').toMillis();
+        const now = DateTime.now().setZone(process.env.Time_Zone).startOf('day').toMillis();
         if (startDuration && endDuration && now >= endDuration && endDuration >= startDuration) {
             return value;
         } else {

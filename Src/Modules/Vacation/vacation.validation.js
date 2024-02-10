@@ -11,7 +11,7 @@ export const requestVacationSchema = {
   }).custom((value, helpers) => {
     const startDate = DateTime.fromFormat(value.startDate, 'd/M/yyyy');
     const endDate = DateTime.fromFormat(value.endDate, 'd/M/yyyy');
-    const now = DateTime.now().setZone('Asia/Jerusalem').startOf('day');
+    const now = DateTime.now().setZone(process.env.Time_Zone).startOf('day');
     if (startDate.isValid && endDate.isValid && startDate >= now && endDate >= startDate) {
       return value;
     } else {
