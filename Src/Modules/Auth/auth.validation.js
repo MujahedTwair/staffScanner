@@ -25,7 +25,7 @@ export const signinEmployeeSchema = {
             'string.empty': "password is required"
         }),
                 
-        deviceId: joi.string().required().max(16)
+        deviceId: joi.string()//.required().max(16)
     })
 }
 
