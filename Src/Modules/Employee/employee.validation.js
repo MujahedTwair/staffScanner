@@ -9,7 +9,7 @@ export const checkWithRejexSchema = {
 
 export const checkWithoutRejexSchema = {
     body: joi.object({
-        deviceId: joi.string().required().max(16),
+        deviceId: joi.string().required().max(100),
     }),
 }
 
