@@ -9,7 +9,7 @@ export const checkWithRejexSchema = {
 
 export const checkWithoutRejexSchema = {
     body: joi.object({
-        deviceId: joi.string().required().max(100),
+        deviceId: joi.string().required().max(32),
     }),
 }
 
@@ -23,7 +23,7 @@ export const updatePasswordSchema = {
 
 export const scanQRSchema = {
     body: joi.object({
-        deviceId: joi.string().required().max(16),
+        deviceId: joi.string().required().max(32),
         QrId: joi.string().required().max(36)
     })
 }
